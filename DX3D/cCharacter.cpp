@@ -9,14 +9,10 @@ cCharacter::cCharacter()
 }
 
 
-cCharacter::~cCharacter()
-{
-}
-
-
 
 void cCharacter::Setup()
 {
+	int a = 1;
 }
 
 void cCharacter::Update()
