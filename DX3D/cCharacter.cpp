@@ -5,7 +5,7 @@
 cCharacter::cCharacter()
 	: m_fRotY(0.0f),
 	m_vDirection(0, 0, 1),
-	m_vPosition(0, 0, 0)
+	m_vPosition(0, 0, 0), m_IsMove(false)
 {
 	D3DXMatrixIdentity(&m_matWorld);
 }
@@ -22,15 +22,23 @@ void cCharacter::Setup()
 
 void cCharacter::Update()
 {
+	m_IsMove = false;
 
 	if (GetKeyState('A') & 0x8000)
-		m_fRotY -= 0.017f;
+		m_fRotY -= 0.037f;
 	if (GetKeyState('D') & 0x8000)
-		m_fRotY += 0.017f;
+		m_fRotY += 0.037f;
 	if (GetKeyState('W') & 0x8000)
+	{
 		m_vPosition = m_vPosition + m_vDirection * 0.1f;
-	if (GetKeyState('S') & 0x8000)
+		m_IsMove = true;
+	}	
+	else if (GetKeyState('S') & 0x8000)
+	{
 		m_vPosition = m_vPosition - m_vDirection * 0.1f;
+		m_IsMove = true;
+	}
+
 
 	RECT rc;
 	GetClientRect(g_hWnd, &rc);

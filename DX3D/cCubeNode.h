@@ -11,8 +11,12 @@ protected:
 	D3DXMATRIXA16	m_matWorldTransMatrix;
 	std::vector<cCubeNode*>	m_vecChild;
 
+
 	SYNTHESIZE(D3DXMATRIXA16*, m_pParentWorldTransMatrix, ParentWorldTransMatrix)
-		SYNTHESIZE(float, m_fRotDeltaX, RotateDeltaX)
+	SYNTHESIZE(float, m_fRotDeltaX, RotateDeltaX)
+	SYNTHESIZE(bool, m_IsRotate, IsRotate)
+	SYNTHESIZE(bool*, m_IsMove, IsMove)
+	
 public:
 
 

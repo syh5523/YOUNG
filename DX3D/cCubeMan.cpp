@@ -32,6 +32,7 @@ void cCubeMan::Setup()
 	cBody* pBody = new cBody;
 	pBody->Setup();
 	pBody->SetParentWorldTransMatrix(&m_matWorld);
+	pBody->SetIsMove(&m_IsMove);
 	m_pRoot = pBody;
 
 	cHead* pHead = new cHead;
