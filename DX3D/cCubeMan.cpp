@@ -1,68 +1,79 @@
 #include "stdafx.h"
 #include "cCubeMan.h"
 
+#include "cHead.h"
 #include "cBody.h"
 #include "cLeftArm.h"
 #include "cLeftLeg.h"
 #include "cRightArm.h"
 #include "cRightLeg.h"
-#include "cHead.h"
 
 cCubeMan::cCubeMan()
-	:m_pRoot(NULL)
+	: m_pRoot(NULL)
 {
-	//
 }
+
 
 cCubeMan::~cCubeMan()
 {
+	if (m_pRoot)
+		m_pRoot->Destroy();
 }
 
 void cCubeMan::Setup()
 {
-	m_pRoot = new cCubeNode;
-	m_pRoot->SetParentWorldTM(&m_matWorld);
+	cCharacter::Setup();
 
-	cCubeNode* Body = new cBody;
-	Body->Setup();
-	m_pRoot->AddChild(Body);
+	ZeroMemory(&m_stMaterial, sizeof(D3DMATERIAL9));
+	m_stMaterial.Diffuse = D3DXCOLOR(0.7f, 0.7f, 0.7f, 1.0f);
+	m_stMaterial.Ambient = D3DXCOLOR(0.7f, 0.7f, 0.7f, 1.0f);
+	m_stMaterial.Specular = D3DXCOLOR(0.7f, 0.7f, 0.7f, 1.0f);
 
-	cCubeNode* Head = new cHead;
-	Head->Setup();
-	m_pRoot->AddChild(Head);
+	cBody* pBody = new cBody;
+	pBody->Setup();
+	pBody->SetParentWorldTransMatrix(&m_matWorld);
+	m_pRoot = pBody;
 
-	cCubeNode* Lleg = new cLeftLeg;
-	Lleg->Setup();
-	m_pRoot->AddChild(Lleg);
+	cHead* pHead = new cHead;
+	pHead->Setup();
+	m_pRoot->AddChild(pHead);
 
-	cCubeNode* Rarm = new cRightArm;
-	Rarm->Setup();
-	m_pRoot->AddChild(Rarm);
+	cLeftArm* pLeftArm = new cLeftArm;
+	pLeftArm->Setup();
+	m_pRoot->AddChild(pLeftArm);
 
-	cCubeNode* Larm = new cLeftArm;
-	Larm->Setup();
-	m_pRoot->AddChild(Larm);
+	cRightArm* pRightArm = new cRightArm;
+	pRightArm->Setup();
+	m_pRoot->AddChild(pRightArm);
 
-	cCubeNode* Rleg = new cRightLeg;
-	Rleg->Setup();
-	m_pRoot->AddChild(Rleg);
+	cLeftLeg* pLeftLeg = new cLeftLeg;
+	pLeftLeg->Setup();
+	m_pRoot->AddChild(pLeftLeg);
+
+	cRightLeg* pRightLeg = new cRightLeg;
+	pRightLeg->Setup();
+	m_pRoot->AddChild(pRightLeg);
 
 }
 
 void cCubeMan::Update()
 {
 	cCharacter::Update();
-
-
-	m_pRoot->Update();
-	//¿ùµå
-	m_pRoot->SetParentWorldTM(&m_matWorld);
-
+	if (m_pRoot)
+		m_pRoot->Update();
 }
 
 void cCubeMan::Render()
 {
-	cCharacter::Render();
-	m_pRoot->Render();
+	g_pD3DDevice->SetRenderState(D3DRS_LIGHTING, true);
+	g_pD3DDevice->SetMaterial(&m_stMaterial);
 
+	cCharacter::Render();
+
+	D3DXMATRIXA16 matWorld;
+	D3DXMatrixIdentity(&matWorld);
+	g_pD3DDevice->SetTransform(D3DTS_WORLD, &matWorld);
+
+	if (m_pRoot)
+		m_pRoot->Render();
 }

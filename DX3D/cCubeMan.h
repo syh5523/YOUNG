@@ -1,6 +1,6 @@
 #pragma once
-#include "cBody.h"
 #include "cCharacter.h"
+
 class cCubeNode;
 
 class cCubeMan : public cCharacter
@@ -8,15 +8,13 @@ class cCubeMan : public cCharacter
 public:
 	cCubeMan();
 	~cCubeMan();
-
-private:
-
-
 public:
-	cCubeNode* m_pRoot;
+	cCubeNode*	m_pRoot;
 
-	virtual void Setup();
-	virtual void Update();
-	virtual void Render();
+	D3DMATERIAL9	m_stMaterial;
+
+	virtual void Setup() override;
+	virtual void Update() override;
+	virtual void Render() override;
 };
 

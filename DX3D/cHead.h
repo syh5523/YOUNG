@@ -7,6 +7,6 @@ public:
 	cHead();
 	~cHead();
 
-	virtual void Setup() override;
+	virtual void Setup() override;	// << :
 };
 

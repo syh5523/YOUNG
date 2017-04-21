@@ -7,6 +7,6 @@ public:
 	cLeftLeg();
 	~cLeftLeg();
 
-	virtual void Setup() override;
+	virtual void Setup() override;	// << :
 };
 

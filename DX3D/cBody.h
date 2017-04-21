@@ -1,17 +1,13 @@
 #pragma once
-#include "cCubeMan.h"
-#include "cCubeNode.h"
 
+#include "cCubeNode.h"
 class cBody : public cCubeNode
 {
 public:
 	cBody();
 	~cBody();
 
-private:
-	
+	virtual void Setup() override;	// << :
 
-public:
-	virtual void Setup() override;
 };
 

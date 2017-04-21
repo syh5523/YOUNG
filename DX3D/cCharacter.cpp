@@ -3,7 +3,9 @@
 
 
 cCharacter::cCharacter()
-	:m_vDirection(0,0,1), m_vPosition(0,0,0), m_fRotY(0.0f)
+	: m_fRotY(0.0f),
+	m_vDirection(0, 0, 1),
+	m_vPosition(0, 0, 0)
 {
 	D3DXMatrixIdentity(&m_matWorld);
 }
@@ -13,57 +15,46 @@ cCharacter::~cCharacter()
 {
 }
 
-
-
 void cCharacter::Setup()
 {
+	//
 }
 
 void cCharacter::Update()
 {
 
-	//로테이션
-	D3DXMATRIXA16 matR;
-	D3DXMatrixRotationY(&matR, m_fRotY);
+	if (GetKeyState('A') & 0x8000)
+		m_fRotY -= 0.017f;
+	if (GetKeyState('D') & 0x8000)
+		m_fRotY += 0.017f;
+	if (GetKeyState('W') & 0x8000)
+		m_vPosition = m_vPosition + m_vDirection * 0.1f;
+	if (GetKeyState('S') & 0x8000)
+		m_vPosition = m_vPosition - m_vDirection * 0.1f;
 
-	//이동
-	D3DXMATRIXA16 matTranslation;
-	D3DXMatrixTranslation(&matTranslation, m_vPosition.x, m_vPosition.y, m_vPosition.z);
+	RECT rc;
+	GetClientRect(g_hWnd, &rc);
+	D3DXMATRIXA16 matS;
+	D3DXMatrixScaling(&matS, 1.0f, 1.0f, 1.0f);
 
-	//최종 월드값
-	m_matWorld =  matR * matTranslation;
+	//Rotate
+	D3DXMATRIXA16 matR, matRY;
+	D3DXMatrixRotationY(&matRY, m_fRotY);
+	matR = matRY;
 
-	//박스디렉션 값 초기화
+	//방향 설정
 	m_vDirection = D3DXVECTOR3(0, 0, 1);
-	D3DXVec3TransformCoord(&m_vDirection, &m_vDirection, &matR);
+	D3DXVec3TransformNormal(&m_vDirection, &m_vDirection, &matR);
 
-	//키 셋팅
-	KeySetting();
+	//Translate
+	D3DXMATRIXA16 matT;
+	D3DXMatrixTranslation(&matT, m_vPosition.x, m_vPosition.y, m_vPosition.z);
+
+	m_matWorld = matS * matR * matT;
 }
 
 void cCharacter::Render()
 {
-}
-
-void cCharacter::KeySetting()
-{
-	if (GetKeyState('D') & 0x8000)
-	{
-		m_fRotY += 0.1f;
-	}
-	else if (GetKeyState('A') & 0x8000)
-	{
-		m_fRotY -= 0.1f;
-	}
-
-	if (GetKeyState('W') & 0x8000)
-	{
-		m_vPosition = m_vPosition + (m_vDirection * 0.1f);
-	}
-	else if (GetKeyState('S') & 0x8000)
-	{
-		m_vPosition = m_vPosition - (m_vDirection * 0.1f);
-	}
 }
 
 D3DXVECTOR3 & cCharacter::GetPosition()
