@@ -39,6 +39,8 @@ void cCubeNode::Update()
 	D3DXMatrixIdentity(&matR);
 	D3DXMatrixIdentity(&matT);
 
+	D3DXMatrixRotationX(&matR, m_fRotDeltaX);
+
 	D3DXMatrixTranslation(&matT, m_vLocalPosition.x,
 		m_vLocalPosition.y,
 		m_vLocalPosition.z);
@@ -50,10 +52,25 @@ void cCubeNode::Update()
 	if (m_pParentWorldTransMatrix)
 		m_matWorldTransMatrix *= *m_pParentWorldTransMatrix;
 
+	
+
+	bool IsMove = false;
+
 	for each(auto p in m_vecChild)
 	{
 		p->Update();
+		
+		
+		if (p->GetRotateDeltaX() >= 1.5f) IsMove = true;
+		else if (p->GetRotateDeltaX() <= -1.5f) IsMove = false;
+
+		if(IsMove)	p->SetRotateDeltaX(p->GetRotateDeltaX() - 0.1f);
+		else  p->SetRotateDeltaX(p->GetRotateDeltaX() + 0.1f);
 	}
+
+
+
+	
 }
 
 void cCubeNode::Render()
