@@ -127,4 +127,18 @@ void cMainGame::Set_Light()
 	g_pD3DDevice->LightEnable(0, true);
 
 
+	D3DLIGHT9 stLight1;
+	ZeroMemory(&stLight1, sizeof(D3DLIGHT9));
+	stLight1.Type = D3DLIGHT_POINT;
+	stLight1.Ambient = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+	stLight1.Diffuse = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+	stLight1.Specular = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+
+	stLight1.Range = 10.0f;
+	D3DXVECTOR3 vDir1(0.0f, 0.0f, 0.0f);
+	D3DXVec3Normalize(&vDir1, &vDir1);
+	stLight1.Direction = vDir1;
+	g_pD3DDevice->SetLight(1, &stLight1);
+	g_pD3DDevice->LightEnable(1, false);
+
 }

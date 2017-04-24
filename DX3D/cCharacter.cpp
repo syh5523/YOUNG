@@ -80,15 +80,15 @@ void cCharacter::Update()
 			{
 				m_IsIdle = true;
 				m_IdleCount = 0;
-				//CreateLight();
+				CreateLight();
+				g_pD3DDevice->LightEnable(0, false);
 			}
-
-			
 		}
 		else
 		{
 			m_IsIdle = false;
-			g_pD3DDevice->LightEnable(0, false);
+			g_pD3DDevice->LightEnable(1, false);
+			g_pD3DDevice->LightEnable(0, true);
 		}
 	}
 }
@@ -101,11 +101,11 @@ void cCharacter::CreateLight()
 {
 	D3DLIGHT9 stLight;
 	ZeroMemory(&stLight, sizeof(D3DLIGHT9));
-	g_pD3DDevice->GetLight(0, &stLight);
-	D3DXVECTOR3 vPos(m_vPosition.x, m_vPosition.y, m_vPosition.z);
+	g_pD3DDevice->GetLight(1, &stLight);
+	D3DXVECTOR3 vPos(m_vPosition.x, m_vPosition.y + 5.0f, m_vPosition.z);
 	stLight.Position = vPos;
-	g_pD3DDevice->SetLight(0, &stLight);
-	g_pD3DDevice->LightEnable(0, true);
+	g_pD3DDevice->SetLight(1, &stLight);
+	g_pD3DDevice->LightEnable(1, true);
 }
 
 D3DXVECTOR3 & cCharacter::GetPosition()
