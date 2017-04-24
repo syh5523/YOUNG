@@ -83,7 +83,7 @@ struct ST_PNT_VERTEX
 {
 	D3DXVECTOR3 p;				//포지션
 	D3DXVECTOR3 n;				//법선벡터
-	D3DXVECTOR3 t;				//텍스처, u,v좌표
+	D3DXVECTOR2 t;				//텍스처, u,v좌표
 
 	enum { FVF = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1 };
 };
@@ -97,5 +97,8 @@ struct ST_PT_VERTEX
 };
 
 //-----------------------------------------------------------
-//				
+//				     텍스처 
 //-----------------------------------------------------------
+
+#define SAMPLE_WIDTH    (0.015625f)
+#define SAMPLE_HEIGHT   (0.03125f)

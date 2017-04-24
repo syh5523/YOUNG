@@ -74,7 +74,7 @@ void cCamera::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	
 		m_fCameraDistance -= GET_WHEEL_DELTA_WPARAM(wParam) / 120;
 
-		if (m_fCameraDistance < 2.0f) m_fCameraDistance = 2.0f;
+		if (m_fCameraDistance < 0.5f) m_fCameraDistance = 0.5f;
 		if (m_fCameraDistance > 20.0f) m_fCameraDistance = 10.0f;
 		break;
 	case WM_MOUSEMOVE:

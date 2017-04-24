@@ -18,8 +18,9 @@ private:
 	cPyramid*	m_pPyramid;
 	cCubeMan*	m_pCubeMan;
 
-	LPDIRECT3DTEXTURE9	m_pTexture;
-	std::vector<ST_PT_VERTEX> m_vecVertex;
+	//LPDIRECT3DTEXTURE9	m_pTexture;
+	//std::vector<ST_PT_VERTEX> m_vecVertex;
+
 public:
 	void Setup();
 	void Update();

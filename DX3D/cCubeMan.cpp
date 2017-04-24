@@ -9,13 +9,16 @@
 #include "cRightLeg.h"
 
 cCubeMan::cCubeMan()
-	: m_pRoot(NULL)
+	: m_pRoot(NULL),
+	m_pTexture(NULL)
 {
 }
 
 
 cCubeMan::~cCubeMan()
 {
+	SAFE_RELEASE(m_pTexture);
+
 	if (m_pRoot)
 		m_pRoot->Destroy();
 }
@@ -24,10 +27,15 @@ void cCubeMan::Setup()
 {
 	cCharacter::Setup();
 
+	//머터리얼
 	ZeroMemory(&m_stMaterial, sizeof(D3DMATERIAL9));
 	m_stMaterial.Diffuse = D3DXCOLOR(0.7f, 0.7f, 0.7f, 1.0f);
 	m_stMaterial.Ambient = D3DXCOLOR(0.7f, 0.7f, 0.7f, 1.0f);
 	m_stMaterial.Specular = D3DXCOLOR(0.7f, 0.7f, 0.7f, 1.0f);
+
+	//텍스처
+	ZeroMemory(&m_pTexture, sizeof(LPDIRECT3DTEXTURE9));
+	D3DXCreateTextureFromFile(g_pD3DDevice, "sample1.PNG", &m_pTexture);
 
 	cBody* pBody = new cBody;
 	pBody->Setup();
@@ -70,6 +78,8 @@ void cCubeMan::Render()
 {
 	g_pD3DDevice->SetRenderState(D3DRS_LIGHTING, true);
 	g_pD3DDevice->SetMaterial(&m_stMaterial);
+	g_pD3DDevice->SetTexture(0, m_pTexture);
+
 
 	cCharacter::Render();
 
@@ -79,4 +89,6 @@ void cCubeMan::Render()
 
 	if (m_pRoot)
 		m_pRoot->Render();
+
+	g_pD3DDevice->SetTexture(0, NULL);
 }

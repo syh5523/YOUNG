@@ -114,3 +114,5 @@ void cCubePNT::Render()
 		&m_vecVertex[0],
 		sizeof(ST_PNT_VERTEX));
 }
+
+

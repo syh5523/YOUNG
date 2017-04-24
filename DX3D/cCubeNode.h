@@ -32,5 +32,8 @@ public:
 	virtual void Update() override;
 	virtual void Render() override;
 
+	void SetTexture(D3DXVECTOR2 Front1, D3DXVECTOR2 Front2, D3DXVECTOR2 Back1, D3DXVECTOR2 Back2,
+		D3DXVECTOR2 Left1, D3DXVECTOR2 Left2, D3DXVECTOR2 Right1, D3DXVECTOR2 Right2, D3DXVECTOR2 Bottom1,
+		D3DXVECTOR2 Bottom2, D3DXVECTOR2 Top1, D3DXVECTOR2 Top2);
 };
 
