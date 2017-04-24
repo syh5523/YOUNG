@@ -17,6 +17,9 @@ protected:
 	SYNTHESIZE(bool, m_IsRotate, IsRotate)
 	SYNTHESIZE(bool*, m_IsMove, IsMove)
 	
+
+
+
 public:
 
 
@@ -28,7 +31,6 @@ public:
 	virtual void Setup() override;
 	virtual void Update() override;
 	virtual void Render() override;
-
 
 };
 

@@ -14,7 +14,7 @@ cGrid::~cGrid()
 void cGrid::Setup()
 {
 	ST_PC_VERTEX v;
-	v.c = D3DCOLOR_XRGB(200, 200, 100);
+	v.c = D3DCOLOR_XRGB(200, 200, 50);
 
 	int nNumHalfTile = 100;
 	float fInterval = 1.0f;

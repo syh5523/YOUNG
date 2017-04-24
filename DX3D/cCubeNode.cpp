@@ -45,24 +45,6 @@ void cCubeNode::Update()
 	//회전
 	D3DXMatrixRotationX(&matR, m_fRotDeltaX);
 
-	//IDLE일 때
-	if (!(*m_IsMove))
-	{
-		D3DLIGHT9 stLight;
-		ZeroMemory(&stLight, sizeof(D3DLIGHT9));
-		g_pD3DDevice->GetLight(0, &stLight);
-		stLight.Position
-		
-		D3DXVECTOR3 vPos(0.0f, 10.0f, 0.0f);
-		D3DXVECTOR3 vRan(0.0f, 0.0f, 0.0f);
-		D3DXVec3Normalize(&vDir, &vDir);
-		stLight.Direction = vDir;
-		stLight.Position = vPos;
-		stLight.Range = 10.0f;
-		g_pD3DDevice->SetLight(0, &stLight);
-		g_pD3DDevice->LightEnable(0, false);
-	}
-
 	D3DXMatrixTranslation(&matT, m_vLocalPosition.x,
 		m_vLocalPosition.y,
 		m_vLocalPosition.z);
@@ -125,6 +107,8 @@ void cCubeNode::Render()
 		p->Render();
 	}
 }
+
+
 
 
 cCubeNode::~cCubeNode()

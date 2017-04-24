@@ -15,7 +15,8 @@ cMainGame::cMainGame()
 	m_pGrid(NULL),
 	m_pCamera(NULL),
 	m_pPyramid(NULL),
-	m_pCubeMan(NULL)
+	m_pCubeMan(NULL),
+	m_pTexture(NULL)
 {
 }
 
@@ -27,6 +28,7 @@ cMainGame::~cMainGame()
 	SAFE_DELETE(m_pCamera);
 	SAFE_DELETE(m_pPyramid);
 	SAFE_DELETE(m_pCubeMan);
+	SAFE_RELEASE(m_pTexture);
 	g_pDeviceManager->Destroy();	//소멸자 역활을 하게끔 만듬
 }
 
@@ -34,6 +36,22 @@ void cMainGame::Setup()
 {
 	//m_pCubePC = new cCubePC;
 	//m_pCubePC->Setup();
+
+	{
+		D3DXCreateTextureFromFile(g_pD3DDevice, "sample.PNG", &m_pTexture);
+		ST_PT_VERTEX v;
+		v.p = D3DXVECTOR3(0, 0, 0);
+		v.t = D3DXVECTOR2(0, 1.0f);
+		m_vecVertex.push_back(v);
+
+		v.p = D3DXVECTOR3(0, 1, 0);
+		v.t = D3DXVECTOR2(0, 0.5f);
+		m_vecVertex.push_back(v);
+
+		v.p = D3DXVECTOR3(1, 0, 0);
+		v.t = D3DXVECTOR2(1, 1);
+		m_vecVertex.push_back(v);
+	}
 
 	m_pGrid = new cGrid;
 	m_pGrid->Setup();
@@ -67,6 +85,20 @@ void cMainGame::Render()
 
 	g_pD3DDevice->BeginScene();
 
+	{
+		D3DXMATRIXA16 matWorld;
+		D3DXMatrixIdentity(&matWorld);
+		g_pD3DDevice->SetTransform(D3DTS_WORLD, &matWorld);
+		g_pD3DDevice->SetTexture(0, m_pTexture);
+		g_pD3DDevice->SetFVF(ST_PT_VERTEX::FVF);
+		g_pD3DDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST,
+			m_vecVertex.size() / 3,
+			&m_vecVertex[0],
+			sizeof(ST_PT_VERTEX));
+
+		g_pD3DDevice->SetTexture(0, NULL);
+	}
+
 	if (m_pGrid) m_pGrid->Render();
 	if (m_pPyramid) m_pPyramid->Render();
 	//if (m_pCubePC) m_pCubePC->Render();
@@ -86,25 +118,24 @@ void cMainGame::Set_Light()
 {
 	D3DLIGHT9 stLight;
 	ZeroMemory(&stLight, sizeof(D3DLIGHT9));
-	stLight.Type = D3DLIGHT_POINT;
-	stLight.Ambient = D3DXCOLOR(0.8f, 0.8f, 0.8f, 1.0f);
-	stLight.Diffuse = D3DXCOLOR(0.8f, 0.8f, 0.8f, 1.0f);
-	stLight.Specular = D3DXCOLOR(0.8f, 0.8f, 0.8f, 1.0f);
+	stLight.Type = D3DLIGHT_SPOT;
+	stLight.Ambient = D3DXCOLOR(0.8f, 0.1f, 0.1f, 1.0f);
+	stLight.Diffuse = D3DXCOLOR(0.8f, 0.1f, 0.1f, 1.0f);
+	stLight.Specular = D3DXCOLOR(0.8f, 0.1f, 0.1f, 1.0f);
 	D3DXVECTOR3 vDir(0.0f, 0.0f, 0.0f);
-	D3DXVECTOR3 vPos(0.0f, 10.0f, 0.0f);
+	D3DXVECTOR3 vPos(0.0f, 0.0f, 0.0f);
 	D3DXVECTOR3 vRan(0.0f, 0.0f, 0.0f);
 	D3DXVec3Normalize(&vDir, &vDir);
 	stLight.Direction = vDir;
 	stLight.Position = vPos;
-	stLight.Range = 10.0f;
+	stLight.Range = 1.0f;
 	g_pD3DDevice->SetLight(0, &stLight);
 	g_pD3DDevice->LightEnable(0, false);
 	
-	//아이언맨 라이드
 
-	/*D3DLIGHT9 stLight1;
+	D3DLIGHT9 stLight1;
 	ZeroMemory(&stLight1, sizeof(D3DLIGHT9));
-	stLight1.Type = D3DLIGHT_SPOT;
+	stLight1.Type = D3DLIGHT_DIRECTIONAL;
 	stLight1.Ambient = D3DXCOLOR(0.8f, 0.8f, 0.8f, 1.0f);
 	stLight1.Diffuse = D3DXCOLOR(0.8f, 0.8f, 0.8f, 1.0f);
 	stLight1.Specular = D3DXCOLOR(0.8f, 0.8f, 0.8f, 1.0f);
@@ -112,8 +143,7 @@ void cMainGame::Set_Light()
 	D3DXVec3Normalize(&vDir1, &vDir1);
 	stLight1.Direction = vDir1;
 	g_pD3DDevice->SetLight(0, &stLight1);
-	g_pD3DDevice->LightEnable(1, true);*/
-
+	g_pD3DDevice->LightEnable(1, true);
 }
 
 
