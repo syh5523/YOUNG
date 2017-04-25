@@ -24,10 +24,8 @@ void cCubeMan::Setup()
 {
 	cCharacter::Setup();
 
-	ZeroMemory(&m_stMaterial, sizeof(D3DMATERIAL9));
-	m_stMaterial.Diffuse = D3DXCOLOR(0.7f, 0.7f, 0.7f, 1.0f);
-	m_stMaterial.Ambient = D3DXCOLOR(0.7f, 0.7f, 0.7f, 1.0f);
-	m_stMaterial.Specular = D3DXCOLOR(0.7f, 0.7f, 0.7f, 1.0f);
+	//머터리얼 설정
+	Set_Material();
 
 	cBody* pBody = new cBody;
 	pBody->Setup();
@@ -79,4 +77,14 @@ void cCubeMan::Render()
 
 	if (m_pRoot)
 		m_pRoot->Render();
+}
+
+
+
+void cCubeMan::Set_Material()
+{
+	ZeroMemory(&m_stMaterial, sizeof(D3DMATERIAL9));
+	m_stMaterial.Diffuse = D3DXCOLOR(0.8f, 0.1f, 0.0f, 1.0f);
+	m_stMaterial.Ambient = D3DXCOLOR(0.7f, 0.7f, 0.7f, 1.0f);
+	m_stMaterial.Specular = D3DXCOLOR(0.7f, 0.7f, 0.7f, 1.0f);
 }
