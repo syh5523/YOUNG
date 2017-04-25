@@ -29,9 +29,9 @@ void cCubeMan::Setup()
 
 	//머터리얼
 	ZeroMemory(&m_stMaterial, sizeof(D3DMATERIAL9));
-	m_stMaterial.Diffuse = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
-	m_stMaterial.Ambient = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
-	m_stMaterial.Specular = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+	m_stMaterial.Diffuse = D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f);
+	m_stMaterial.Ambient = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	m_stMaterial.Specular = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
 	//텍스처
 	ZeroMemory(&m_pTexture, sizeof(LPDIRECT3DTEXTURE9));
@@ -79,7 +79,6 @@ void cCubeMan::Render()
 	g_pD3DDevice->SetRenderState(D3DRS_LIGHTING, true);
 	g_pD3DDevice->SetMaterial(&m_stMaterial);
 	g_pD3DDevice->SetTexture(0, m_pTexture);
-
 
 	cCharacter::Render();
 

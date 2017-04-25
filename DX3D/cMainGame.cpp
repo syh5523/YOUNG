@@ -66,6 +66,7 @@ void cMainGame::Setup()
 	m_pCamera->Setup(&m_pCubeMan->GetPosition());
 
 	//g_pD3DDevice->SetRenderState(D3DRS_LIGHTING, false);//현재 빛을 사용하지 않기 때문에 꺼줌
+	g_pD3DDevice->SetRenderState(D3DRS_SPECULARENABLE, false);
 	Set_Light();
 }
 
@@ -114,35 +115,59 @@ void cMainGame::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 void cMainGame::Set_Light()
 {
+
+	//---------------------------------------------------------------
+	//							디렉션
+	//---------------------------------------------------------------
 	D3DLIGHT9 stLight;
 	ZeroMemory(&stLight, sizeof(D3DLIGHT9));
 	stLight.Type = D3DLIGHT_DIRECTIONAL;
-	stLight.Ambient = D3DXCOLOR(0.8f, 0.8f, 0.8f, 1.0f);
-	stLight.Diffuse = D3DXCOLOR(0.8f, 0.8f, 0.8f, 1.0f);
-	stLight.Specular = D3DXCOLOR(0.8f, 0.8f, 0.8f, 1.0f);
+	stLight.Ambient = D3DXCOLOR(0.1f, 0.1f, 0.1f, 1.0f);
+	stLight.Diffuse = D3DXCOLOR(0.5f, 0.5f, 0.5f, 1.0f);
+	stLight.Specular = D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f);
+
 	D3DXVECTOR3 vDir(1.0f, -1.0f, 1.0f);
 	D3DXVec3Normalize(&vDir, &vDir);
 	stLight.Direction = vDir;
 	g_pD3DDevice->SetLight(0, &stLight);
 	g_pD3DDevice->LightEnable(0, true);
 
-
-	D3DLIGHT9 stLight1;
-	ZeroMemory(&stLight1, sizeof(D3DLIGHT9));
-	stLight1.Type = D3DLIGHT_SPOT;
-	stLight1.Ambient = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
-	stLight1.Diffuse = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
-	stLight1.Specular = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+	//---------------------------------------------------------------
+	//							 스팟
+	//---------------------------------------------------------------
 	
-	stLight1.Range = 5.0f;
+	ZeroMemory(&stLight, sizeof(D3DLIGHT9));
+	stLight.Type = D3DLIGHT_SPOT;
+	stLight.Ambient = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	stLight.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	stLight.Specular = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	
+	stLight.Range = 10.0f;
 	D3DXVECTOR3 vDir1(0.0f, 0.0f, 0.0f);
 
-	stLight1.Phi = 1.58f;
-	stLight1.Theta = 0.8f;
+	stLight.Phi = 1.58f;
+	stLight.Theta = 0.8f;
 
 	D3DXVec3Normalize(&vDir1, &vDir1);
-	stLight1.Direction = vDir1;
-	g_pD3DDevice->SetLight(1, &stLight1);
+	stLight.Direction = vDir1;
+	g_pD3DDevice->SetLight(1, &stLight);
 	g_pD3DDevice->LightEnable(1, false);
+
+	//---------------------------------------------------------------
+	//							포인트
+	//---------------------------------------------------------------
+	ZeroMemory(&stLight, sizeof(D3DLIGHT9));
+	stLight.Type = D3DLIGHT_POINT;
+	stLight.Ambient = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+	stLight.Diffuse = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+	stLight.Specular = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+
+	stLight.Range = 5.0f;
+	D3DXVECTOR3 vDir2(0.0f, 0.0f, 0.0f);
+
+	D3DXVec3Normalize(&vDir2, &vDir2);
+	stLight.Direction = vDir2;
+	g_pD3DDevice->SetLight(2, &stLight);
+	g_pD3DDevice->LightEnable(2, false);
 
 }

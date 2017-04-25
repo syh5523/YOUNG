@@ -1,17 +1,14 @@
 #pragma once
-class cGrid
+#include "cCubeNode.h"
+
+class cGrid : public cCubeNode
 {
 public:
 	cGrid();
 	~cGrid();
 
-private:
-	std::vector<ST_PC_VERTEX>		m_vecVertex;
+	virtual void Setup() override;	// << :
 
-
-public:
-	void Setup();
-	void Render();
-
+	D3DMATERIAL9	m_stMaterial;
 };
 
