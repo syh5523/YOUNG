@@ -8,6 +8,18 @@ class cCubeMan : public cCharacter
 public:
 	cCubeMan();
 	~cCubeMan();
+
+private:
+	//----------------------캐릭터 이동 관련--------------------
+	std::vector<ST_PC_VERTEX>		m_vHexagon;					//목적지 관련 버텍스
+	std::vector<D3DXVECTOR3>		m_vVia;						//경유지 벅텍스
+
+	float							m_Length;
+	int								m_Befor_Index;
+	int								m_via_Index;
+	int								m_Currunt_Index;
+	int								m_Destination_Index;
+
 public:
 	cCubeNode*	m_pRoot;
 
@@ -18,5 +30,9 @@ public:
 	virtual void Setup() override;
 	virtual void Update() override;
 	virtual void Render() override;
+
+
+	//캐릭터 이동
+	void MoveCharacter();
 };
 

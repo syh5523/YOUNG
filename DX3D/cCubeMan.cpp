@@ -10,8 +10,12 @@
 
 cCubeMan::cCubeMan()
 	: m_pRoot(NULL),
-	m_pTexture(NULL)
+	m_pTexture(NULL),
+	m_Destination_Index(2), m_Currunt_Index(0), m_Befor_Index(8), m_via_Index(2),
+	m_Length(0.0f)
 {
+
+	
 }
 
 
@@ -32,6 +36,14 @@ void cCubeMan::RecieveHexaVertext(std::vector<ST_PC_VERTEX> *vertext)
 void cCubeMan::Setup()
 {
 	cCharacter::Setup();
+
+	//첫번째 방향 정해주기
+	D3DXVECTOR3 temp1;
+
+	D3DXVec3Normalize(&temp1, &(m_vHexagon[m_Destination_Index].p - m_vPosition));
+	m_fRotY += (D3DX_PI - acos(D3DXVec3Dot(&D3DXVECTOR3(0, 0, 1), &temp1)));
+
+	m_Length = D3DXVec3Length(&(m_vHexagon[m_via_Index].p - m_vPosition)) / 5.0f;
 
 	//머터리얼
 	ZeroMemory(&m_stMaterial, sizeof(D3DMATERIAL9));
@@ -78,6 +90,9 @@ void cCubeMan::Update()
 	cCharacter::Update();
 	if (m_pRoot)
 		m_pRoot->Update();
+
+	//캐릭터 이동
+	MoveCharacter();
 }
 
 void cCubeMan::Render()
@@ -96,4 +111,29 @@ void cCubeMan::Render()
 		m_pRoot->Render();
 
 	g_pD3DDevice->SetTexture(0, NULL);
+}
+
+
+void cCubeMan::MoveCharacter()
+{
+
+	//그냥 육각형 돌기
+	{
+		//목적지에 도달하면 앵글, 인덱스 바꿔주기
+		if (fabs(m_vPosition.x - m_vHexagon[m_Destination_Index].p.x) < EPSILON &&
+			fabs(m_vPosition.z - m_vHexagon[m_Destination_Index].p.z) < EPSILON)
+		{
+			m_fRotY -= ((D3DX_PI / 2) - acos(D3DXVec3Dot(&-m_vDirection, &D3DXVECTOR3(0, 0, 1))));
+
+			m_vPosition = m_vHexagon[m_Destination_Index].p;
+
+			m_Destination_Index += 2;
+		}
+	}
+
+
+
+	m_vPosition = m_vPosition - m_vDirection * 0.1f;
+
+
 }
