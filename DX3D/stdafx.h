@@ -27,7 +27,7 @@
 #include <set>
 #include <map>
 #include <list>
-
+#include <math.h>
 
 #include <d3dx9.h>
 #pragma comment(lib, "d3d9.lib")
@@ -99,6 +99,11 @@ struct ST_PT_VERTEX
 //-----------------------------------------------------------
 //				     ≈ÿΩ∫√≥ 
 //-----------------------------------------------------------
-
+#define EPSILON			(0.1f)
 #define SAMPLE_WIDTH    (0.015625f)
 #define SAMPLE_HEIGHT   (0.03125f)
+
+
+
+
+//#pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console")

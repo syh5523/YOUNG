@@ -42,13 +42,13 @@ void cCamera::Update()
 
 	matR = matRX * matRY;
 
-	m_vEye = D3DXVECTOR3(0, 5, -m_fCameraDistance);
+	m_vEye = D3DXVECTOR3(0, 15, -m_fCameraDistance);
 	D3DXVec3TransformCoord(&m_vEye, &m_vEye, &matR);
 
 	if (m_pvTarget)
 	{
-		m_vLookAt = *m_pvTarget;
-		m_vEye = m_vEye + *m_pvTarget;
+		//m_vLookAt = *m_pvTarget;
+		//m_vEye = m_vEye + *m_pvTarget;
 	}
 
 	D3DXMATRIXA16 matView;
@@ -75,7 +75,7 @@ void cCamera::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		m_fCameraDistance -= GET_WHEEL_DELTA_WPARAM(wParam) / 120;
 
 		if (m_fCameraDistance < 0.5f) m_fCameraDistance = 0.5f;
-		if (m_fCameraDistance > 20.0f) m_fCameraDistance = 10.0f;
+		if (m_fCameraDistance > 30.0f) m_fCameraDistance = 10.0f;
 		break;
 	case WM_MOUSEMOVE:
 		if (m_isButtonDown)

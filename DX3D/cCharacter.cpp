@@ -3,17 +3,17 @@
 
 
 cCharacter::cCharacter()
-	: m_fRotY(0.0f),
+	:m_fRotY(D3DX_PI),
 	m_vDirection(0, 0, 1),
-	m_vPosition(0, 0, 0), m_IsMove(false),
+	m_vPosition(6, 0, 0), m_IsMove(false),
 	m_IdleCount(0), m_IsIdle(false),
 	m_SunDir(0,0,0), m_TimeForDay(0), m_SunX(0), m_SunY(0),
 	m_DLightAmbientR(0.1f), m_DLightAmbientG(0.1f), m_DLightAmbientB(0.1f),
-	m_DLightDiffuseR(0.1f), m_DLightDiffuseG(0.1f), m_DLightDiffuseB(0.1f)
-
+	m_DLightDiffuseR(0.1f), m_DLightDiffuseG(0.1f), m_DLightDiffuseB(0.1f),
+	m_Destination_Index(4), m_Currunt_Index(0), m_Befor_Index(8), m_via_Index(2),
+	m_Length(0.0f)
 {
-	D3DXMatrixIdentity(&m_matWorld);
-	
+	D3DXMatrixIdentity(&m_matWorld);	
 }
 
 
@@ -23,8 +23,16 @@ cCharacter::~cCharacter()
 }
 
 void cCharacter::Setup()
-{
-	//
+{	
+	//첫번째 방향 정해주기
+	D3DXVECTOR3 temp1, temp2;
+
+	D3DXVec3Normalize(&temp1, &(m_vHexagon[m_via_Index].p - m_vPosition));
+	D3DXVec3Normalize(&temp2, &(D3DXVECTOR3(6, 0, 1) - m_vPosition));
+	m_fRotY -= acos(D3DXVec3Dot(&temp1, &temp2));
+
+
+	m_Length = D3DXVec3Length(&(m_vHexagon[m_via_Index].p - m_vPosition)) / 5.0f;
 }
 
 void cCharacter::Update()
@@ -47,12 +55,7 @@ void cCharacter::Update()
 			m_vPosition = m_vPosition - m_vDirection * 0.1f;
 			m_IsMove = true;
 		}
-
 	}
-
-	//조명 이동
-	//MoveDirectionLight();
-
 
 	//월드 구하기
 	{
@@ -76,6 +79,8 @@ void cCharacter::Update()
 
 		m_matWorld = matS * matR * matT;
 	}
+	//캐릭터 이동
+	MoveCharacter();
 
 	//IDLE일 때
 	{
@@ -103,49 +108,118 @@ void cCharacter::Update()
 		//	g_pD3DDevice->LightEnable(0, true);
 		//}
 	}
+
+	//조명 이동
+	//MoveDirectionLight();
 }
 
 void cCharacter::Render()
 {
+
+
 }
 
-void cCharacter::CreateLight()
+
+//-----------------------------------------------------------
+//						  캐릭터 이동관련
+//-----------------------------------------------------------
+void cCharacter::MoveCharacter()
 {
-	D3DLIGHT9 stLight;
-	ZeroMemory(&stLight, sizeof(D3DLIGHT9));
-	g_pD3DDevice->GetLight(1, &stLight);
-	D3DXVECTOR3 vPos(m_vPosition.x, m_vPosition.y + 5.0f, m_vPosition.z);
-	stLight.Position = vPos;
-	g_pD3DDevice->SetLight(1, &stLight);
-	g_pD3DDevice->LightEnable(1, true);
+	//그냥 돌기
+
+	
+	
+	
+	//그냥 육각형 돌기
+	{
+		////목적지에 도달하면 앵글, 인덱스 바꿔주기
+		//if (fabs(m_vPosition.x - m_vHexagon[m_Destination_Index].p.x) < EPSILON &&
+		//	fabs(m_vPosition.z - m_vHexagon[m_Destination_Index].p.z) < EPSILON)
+		//{
+		//	m_fRotY -= D3DX_PI / 3;
+		//	m_vPosition = m_vHexagon[m_Destination_Index].p;
+
+		//	//목적지에 도달했으니 현재인덱스가 이전인덱스가 됨.
+		//	m_Befor_Index = m_Currunt_Index;
+		//	//목적지에 도달했으니 목적지가 현재 인덱스가 됨.
+		//	m_Currunt_Index = m_Destination_Index;
+		//	//목적지 인덱스는 다음점으로 이동
+		//	m_Destination_Index += 2;
+		//}
+	}
+	
+	//원형으로 돌기
+	{
+		D3DXVECTOR3 temp1;
+		D3DXVec3Normalize(&temp1, &(-m_vDirection));
+
+		//첫번째 점
+		temp1 = temp1* m_Length + m_vHexagon[m_Currunt_Index].p;
+		//m_vVia.push_back(temp1);
+
+
+
+		if (fabs(m_vPosition.x - temp1.x) < EPSILON)
+		{
+			m_fRotY -= D3DX_PI / 3;
+
+			//첫번째 방향 정해주기
+			D3DXVECTOR3 temp1, temp2, temp3;
+			temp3 = m_vPosition;
+			if (m_vPosition.z > 0)	temp3.z += 1;
+			else 	temp3.z -= 1;
+			
+			D3DXVECTOR3 viaTemp;
+
+
+			D3DXVec3Normalize(&temp1, &(m_vHexagon[m_via_Index].p - m_vPosition));
+			D3DXVec3Normalize(&temp2, &(temp3 - m_vPosition));
+			m_fRotY -= acos(D3DXVec3Dot(&temp1, &temp2));
+		}
+
+		////목적지에 도달하면 앵글, 인덱스 바꿔주기
+		//if (fabs(m_vPosition.x - m_vHexagon[m_Destination_Index].p.x) < EPSILON &&
+		//	fabs(m_vPosition.z - m_vHexagon[m_Destination_Index].p.z) < EPSILON)
+		//{
+
+
+		//	//------------------------------------------------------------
+		//	//						인덱스 처리
+		//	//-------------------------------------------------------------
+
+		//	//목적지에 도달했으니 현재인덱스가 이전인덱스가 됨.
+		//	m_Befor_Index = m_Currunt_Index;
+		//	//목적지에 도달했으니 목적지가 현재 인덱스가 됨.
+		//	m_Currunt_Index = m_Destination_Index;
+
+		//	//목적지 저장
+		//	m_Destination_Index += 4;
+		//	//인덱스가 넘어설경우
+		//	if (m_Destination_Index >= m_vHexagon.size()) m_Destination_Index = 0;
+		//	//경유지 저장
+		//	m_via_Index -= 2;
+		//	if (m_via_Index < 0) m_via_Index = 10;
+
+		//	//현재지점 초기화
+		//	m_vPosition = m_vHexagon[m_Currunt_Index].p;
+
+		//	//------------------------------------------------------------
+		//	//						버텍스 저장
+		//	//-------------------------------------------------------------
+
+		//}
+	}
+
+	m_vPosition = m_vPosition - m_vDirection * 0.06f;
+
+
 }
 
-void cCharacter::CreateSpotLight()
-{
-	OffAllLight();
-	g_pD3DDevice->LightEnable(1, true);
-}
 
-void cCharacter::CreatePointLight()
-{
-	OffAllLight();
-	g_pD3DDevice->LightEnable(2, true);
-}
 
-void cCharacter::CreateDirectionLight()
-{
-	OffAllLight();
-	g_pD3DDevice->LightEnable(0, true);
-}
-
-void cCharacter::MoveSpotLight()
-{
-}
-
-void cCharacter::MovePointLight()
-{
-}
-
+//-----------------------------------------------------------
+//						  라이트 관련
+//-----------------------------------------------------------
 void cCharacter::MoveDirectionLight()
 {
 
@@ -261,10 +335,21 @@ void cCharacter::OffAllLight()
 	for (int i = 0; i < 3; ++i)
 	{
 		g_pD3DDevice->LightEnable(i, false);
-	}
+	}	
 }
 
 D3DXVECTOR3 & cCharacter::GetPosition()
 {
 	return m_vPosition;
+}
+
+void cCharacter::CreateLight()
+{
+	D3DLIGHT9 stLight;
+	ZeroMemory(&stLight, sizeof(D3DLIGHT9));
+	g_pD3DDevice->GetLight(1, &stLight);
+	D3DXVECTOR3 vPos(m_vPosition.x, m_vPosition.y + 5.0f, m_vPosition.z);
+	stLight.Position = vPos;
+	g_pD3DDevice->SetLight(1, &stLight);
+	g_pD3DDevice->LightEnable(1, true);
 }

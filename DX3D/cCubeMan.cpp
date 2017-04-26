@@ -23,6 +23,12 @@ cCubeMan::~cCubeMan()
 		m_pRoot->Destroy();
 }
 
+void cCubeMan::RecieveHexaVertext(std::vector<ST_PC_VERTEX> *vertext)
+{
+	m_vHexagon = *vertext;
+
+}
+
 void cCubeMan::Setup()
 {
 	cCharacter::Setup();

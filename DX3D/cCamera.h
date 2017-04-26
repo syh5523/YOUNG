@@ -21,5 +21,6 @@ public:
 	void Update();
 	void WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 	
+
 };
 

@@ -60,7 +60,9 @@ void cMainGame::Setup()
 	m_pPyramid->Setup();
 
 	m_pCubeMan = new cCubeMan;
+	m_pCubeMan->RecieveHexaVertext(&m_pGrid->GetHexagonVertex());
 	m_pCubeMan->Setup();
+
 
 	m_pCamera = new cCamera;
 	m_pCamera->Setup(&m_pCubeMan->GetPosition());

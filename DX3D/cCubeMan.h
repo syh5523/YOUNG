@@ -14,6 +14,7 @@ public:
 	D3DMATERIAL9	m_stMaterial;
 	LPDIRECT3DTEXTURE9	m_pTexture;
 
+	void RecieveHexaVertext(std::vector<ST_PC_VERTEX> *vertext);
 	virtual void Setup() override;
 	virtual void Update() override;
 	virtual void Render() override;
