@@ -11,7 +11,7 @@
 cCubeMan::cCubeMan()
 	: m_pRoot(NULL),
 	m_pTexture(NULL),
-	m_Destination_Index(2), m_Currunt_Index(0), m_Befor_Index(8), m_via_Index(2),
+	m_Destination_Index(2), m_Currunt_Index(0), m_Befor_Index(10), m_via_Index(0),
 	m_Length(0.0f)
 {
 
@@ -119,15 +119,29 @@ void cCubeMan::MoveCharacter()
 
 	//그냥 육각형 돌기
 	{
-		//목적지에 도달하면 앵글, 인덱스 바꿔주기
+
+		//-------------------------------------------------------
+		//						그냥 돌기
+		//-------------------------------------------------------
+
+		//목적지 도착
 		if (fabs(m_vPosition.x - m_vHexagon[m_Destination_Index].p.x) < EPSILON &&
 			fabs(m_vPosition.z - m_vHexagon[m_Destination_Index].p.z) < EPSILON)
 		{
-			m_fRotY -= ((D3DX_PI / 2) - acos(D3DXVec3Dot(&-m_vDirection, &D3DXVECTOR3(0, 0, 1))));
-
-			m_vPosition = m_vHexagon[m_Destination_Index].p;
-
+			//인덱스 갱신
+			m_Currunt_Index = m_Destination_Index;
 			m_Destination_Index += 2;
+			if (m_Destination_Index >= m_vHexagon.size()) m_Destination_Index = 0;
+
+			//다음 목적지로 가능 방향의 벡터 구하기
+			D3DXVECTOR3 vtemp1;
+			vtemp1 = m_vHexagon[m_Destination_Index].p - m_vHexagon[m_Currunt_Index].p;
+			D3DXVec3Normalize(&vtemp1, &vtemp1);
+
+			m_fRotY -= acos(D3DXVec3Dot(&vtemp1, &-m_vDirection));
+
+			m_vPosition = m_vHexagon[m_Currunt_Index].p;
+	
 		}
 	}
 
