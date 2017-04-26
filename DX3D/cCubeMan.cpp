@@ -47,7 +47,7 @@ void cCubeMan::Setup()
 	//m_vVia
 	float length1, length2;
 	//목적지 1의 벡터 크기
-	m_Lenght1 = D3DXVec3Length(&(m_vHexagon[m_via_Index].p - m_vPosition)) / CUVNUMBER;
+	m_Lenght1 = D3DXVec3Length(&(m_vHexagon[m_Destination_Index].p - m_vPosition)) / CUVNUMBER;
 	m_Lenght2 = D3DXVec3Length(&(m_vHexagon[m_Destination_Index].p - m_vHexagon[m_via_Index].p)) / CUVNUMBER;
 	m_cuvNum = CUVNUMBER;
 
@@ -169,9 +169,6 @@ void cCubeMan::MoveCharacter()
 		vtemp1 *= m_Lenght2;
 		m_savePos2 += vtemp1;
 
-		if (fabs(m_savePos2.x - m_vHexagon[m_via_Index].p.x) < EPSILON &&
-			fabs(m_savePos2.z - m_vHexagon[m_via_Index].p.z) < EPSILON) return;
-
 		//위 벡터에서 현재 포지션을 뺀 후 각도를 구해 빼줌
 		vtemp1 = m_savePos2 - m_vPosition;
 		D3DXVec3Normalize(&vtemp1, &vtemp1);
@@ -204,7 +201,7 @@ void cCubeMan::MoveCharacter()
 		m_fRotY -= acos(D3DXVec3Dot(&-m_vDirection, &temp1));
 
 		m_savePos = m_vPosition;
-		m_Lenght1 = D3DXVec3Length(&(m_vHexagon[m_via_Index].p - m_vPosition)) / CUVNUMBER;
+		m_Lenght1 = D3DXVec3Length(&(m_vHexagon[m_Destination_Index].p - m_vPosition)) / CUVNUMBER;
 		m_Lenght2 = D3DXVec3Length(&(m_vHexagon[m_Destination_Index].p - m_vHexagon[m_via_Index].p)) / CUVNUMBER;
 	
 		m_savePos2 = m_vHexagon[m_via_Index].p;
@@ -215,7 +212,7 @@ void cCubeMan::MoveCharacter()
 	
 
 
-	m_vPosition = m_vPosition - m_vDirection * 0.05f;
+	m_vPosition = m_vPosition - m_vDirection * 0.1f;
 
 
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include "cCharacter.h"
-#define CUVNUMBER 7
+#define CUVNUMBER 70
 
 class cCubeNode;
 
