@@ -11,8 +11,7 @@
 cCubeMan::cCubeMan()
 	: m_pRoot(NULL),
 	m_pTexture(NULL),
-	m_Destination_Index(2), m_Currunt_Index(0), m_Befor_Index(10), m_via_Index(0),
-	m_Length(0.0f)
+	m_Destination_Index(4), m_Currunt_Index(0), m_via_Index(2)
 {
 
 	
@@ -36,14 +35,23 @@ void cCubeMan::RecieveHexaVertext(std::vector<ST_PC_VERTEX> *vertext)
 void cCubeMan::Setup()
 {
 	cCharacter::Setup();
-
+	m_savePos = m_vPosition;
+	m_savePos2 = m_vHexagon[m_via_Index].p;
 	//첫번째 방향 정해주기
 	D3DXVECTOR3 temp1;
 
-	D3DXVec3Normalize(&temp1, &(m_vHexagon[m_Destination_Index].p - m_vPosition));
+	D3DXVec3Normalize(&temp1, &(m_vHexagon[m_via_Index].p - m_vPosition));
 	m_fRotY += (D3DX_PI - acos(D3DXVec3Dot(&D3DXVECTOR3(0, 0, 1), &temp1)));
 
-	m_Length = D3DXVec3Length(&(m_vHexagon[m_via_Index].p - m_vPosition)) / 5.0f;
+	//경유지 버텍스
+	//m_vVia
+	float length1, length2;
+	//목적지 1의 벡터 크기
+	m_Lenght1 = D3DXVec3Length(&(m_vHexagon[m_via_Index].p - m_vPosition)) / CUVNUMBER;
+	m_Lenght2 = D3DXVec3Length(&(m_vHexagon[m_Destination_Index].p - m_vHexagon[m_via_Index].p)) / CUVNUMBER;
+	m_cuvNum = CUVNUMBER;
+
+
 
 	//머터리얼
 	ZeroMemory(&m_stMaterial, sizeof(D3DMATERIAL9));
@@ -116,38 +124,98 @@ void cCubeMan::Render()
 
 void cCubeMan::MoveCharacter()
 {
-
-	//그냥 육각형 돌기
+	//-------------------------------------------------------
+	//						그냥 돌기
+	//-------------------------------------------------------
 	{
 
-		//-------------------------------------------------------
-		//						그냥 돌기
-		//-------------------------------------------------------
+		////목적지 도착
+		//if (fabs(m_vPosition.x - m_vHexagon[m_Destination_Index].p.x) < EPSILON &&
+		//	fabs(m_vPosition.z - m_vHexagon[m_Destination_Index].p.z) < EPSILON)
+		//{
+		//	//인덱스 갱신
+		//	m_Currunt_Index = m_Destination_Index;
+		//	m_Destination_Index += 2;
+		//	if (m_Destination_Index >= m_vHexagon.size()) m_Destination_Index = 0;
 
-		//목적지 도착
-		if (fabs(m_vPosition.x - m_vHexagon[m_Destination_Index].p.x) < EPSILON &&
-			fabs(m_vPosition.z - m_vHexagon[m_Destination_Index].p.z) < EPSILON)
-		{
-			//인덱스 갱신
-			m_Currunt_Index = m_Destination_Index;
-			m_Destination_Index += 2;
-			if (m_Destination_Index >= m_vHexagon.size()) m_Destination_Index = 0;
+		//	//다음 목적지로 가능 방향의 벡터 구하기
+		//	D3DXVECTOR3 vtemp1;
+		//	vtemp1 = m_vHexagon[m_Destination_Index].p - m_vHexagon[m_Currunt_Index].p;
+		//	D3DXVec3Normalize(&vtemp1, &vtemp1);
 
-			//다음 목적지로 가능 방향의 벡터 구하기
-			D3DXVECTOR3 vtemp1;
-			vtemp1 = m_vHexagon[m_Destination_Index].p - m_vHexagon[m_Currunt_Index].p;
-			D3DXVec3Normalize(&vtemp1, &vtemp1);
+		//	m_fRotY -= acos(D3DXVec3Dot(&vtemp1, &-m_vDirection));
 
-			m_fRotY -= acos(D3DXVec3Dot(&vtemp1, &-m_vDirection));
-
-			m_vPosition = m_vHexagon[m_Currunt_Index].p;
+		//	m_vPosition = m_vHexagon[m_Currunt_Index].p;
 	
+		//}
+	}
+
+	//-------------------------------------------------------
+	//						곡선으로 돌기
+	//-------------------------------------------------------
+	//현재 포지션이 지난포지션보다 길이1만큼 더 갔다면 들어와라
+	if (fabs(m_vPosition.x - (m_savePos + (-m_vDirection * m_Lenght1)).x) < EPSILON &&
+		fabs(m_vPosition.z - (m_savePos + (-m_vDirection * m_Lenght1)).z) < EPSILON)
+	{
+		if (m_cuvNum == 0)
+		{
+			m_vPosition = m_vPosition - m_vDirection * 0.05f;
+			return;
 		}
+		//비아에서 렝쓰만큼 간벡터 구하기
+		D3DXVECTOR3 vtemp1;
+		vtemp1 = m_vHexagon[m_Destination_Index].p - m_vHexagon[m_via_Index].p;
+		D3DXVec3Normalize(&vtemp1, &vtemp1);
+		vtemp1 *= m_Lenght2;
+		m_savePos2 += vtemp1;
+
+		if (fabs(m_savePos2.x - m_vHexagon[m_via_Index].p.x) < EPSILON &&
+			fabs(m_savePos2.z - m_vHexagon[m_via_Index].p.z) < EPSILON) return;
+
+		//위 벡터에서 현재 포지션을 뺀 후 각도를 구해 빼줌
+		vtemp1 = m_savePos2 - m_vPosition;
+		D3DXVec3Normalize(&vtemp1, &vtemp1);
+
+		m_fRotY -= (acos(D3DXVec3Dot(&vtemp1, &-m_vDirection)));
+
+		//현재포지션 지정해줌
+		//m_vPosition = m_savePos + (-m_vDirection * m_Lenght1);
+		m_savePos = m_vPosition;
+
+		m_cuvNum--;
 	}
 
 
 
-	m_vPosition = m_vPosition - m_vDirection * 0.1f;
+	//목적지 도착
+	if (fabs(m_vPosition.x - m_vHexagon[m_Destination_Index].p.x) < EPSILON &&
+		fabs(m_vPosition.z - m_vHexagon[m_Destination_Index].p.z) < EPSILON)
+	{
+		//인덱스 갱신
+		m_Currunt_Index = m_Destination_Index;
+		m_via_Index = m_Currunt_Index + 2;
+		m_Destination_Index += 4;
+		if (m_Destination_Index >= m_vHexagon.size()) m_Destination_Index = 0;
+
+		//방향 정해주기
+		D3DXVECTOR3 temp1;
+
+		D3DXVec3Normalize(&temp1, &(m_vHexagon[m_via_Index].p - m_vHexagon[m_Currunt_Index].p));
+		m_fRotY -= acos(D3DXVec3Dot(&-m_vDirection, &temp1));
+
+		m_savePos = m_vPosition;
+		m_Lenght1 = D3DXVec3Length(&(m_vHexagon[m_via_Index].p - m_vPosition)) / CUVNUMBER;
+		m_Lenght2 = D3DXVec3Length(&(m_vHexagon[m_Destination_Index].p - m_vHexagon[m_via_Index].p)) / CUVNUMBER;
+	
+		m_savePos2 = m_vHexagon[m_via_Index].p;
+		m_cuvNum = CUVNUMBER;
+	}
+
+
+	
+
+
+	m_vPosition = m_vPosition - m_vDirection * 0.05f;
 
 
 }

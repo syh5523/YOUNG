@@ -99,7 +99,7 @@ struct ST_PT_VERTEX
 //-----------------------------------------------------------
 //				     ≈ÿΩ∫√≥ 
 //-----------------------------------------------------------
-#define EPSILON			(0.1f)
+#define EPSILON			(0.001f)
 #define SAMPLE_WIDTH    (0.015625f)
 #define SAMPLE_HEIGHT   (0.03125f)
 

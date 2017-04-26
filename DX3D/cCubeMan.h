@@ -1,5 +1,6 @@
 #pragma once
 #include "cCharacter.h"
+#define CUVNUMBER 7
 
 class cCubeNode;
 
@@ -14,8 +15,10 @@ private:
 	std::vector<ST_PC_VERTEX>		m_vHexagon;					//목적지 관련 버텍스
 	std::vector<D3DXVECTOR3>		m_vVia;						//경유지 벅텍스
 
-	float							m_Length;
-	int								m_Befor_Index;
+	float							m_Lenght1, m_Lenght2;
+	D3DXVECTOR3						m_savePos, m_savePos2;
+	int								m_cuvNum;
+
 	int								m_via_Index;
 	int								m_Currunt_Index;
 	int								m_Destination_Index;
