@@ -33,4 +33,18 @@ void cGrid::Setup()
 	m_stMaterial.Ambient = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
 	m_stMaterial.Specular = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
 
+
+	//-----------------------육각형 그리기
+
+	ST_PNT_VERTEX vertex;
+
+	vertex.p = D3DXVECTOR3(2, 0, 0); m_hexagon.push_back(vertex);
+	vertex.p = D3DXVECTOR3(1, 0, 2); m_hexagon.push_back(vertex);
+	vertex.p = D3DXVECTOR3(-1, 0, 2); m_hexagon.push_back(vertex);
+	vertex.p = D3DXVECTOR3(-2, 0, 0); m_hexagon.push_back(vertex);
+	vertex.p = D3DXVECTOR3(-1, 0,-2); m_hexagon.push_back(vertex);
+	vertex.p = D3DXVECTOR3(1, 0, 2); m_hexagon.push_back(vertex);
+
+
+
 }

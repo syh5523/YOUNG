@@ -51,7 +51,7 @@ void cCharacter::Update()
 	}
 
 	//조명 이동
-	MoveDirectionLight();
+	//MoveDirectionLight();
 
 
 	//월드 구하기

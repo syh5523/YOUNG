@@ -122,7 +122,7 @@ void cMainGame::Set_Light()
 	D3DLIGHT9 stLight;
 	ZeroMemory(&stLight, sizeof(D3DLIGHT9));
 	stLight.Type = D3DLIGHT_DIRECTIONAL;
-	stLight.Ambient = D3DXCOLOR(0.1f, 0.1f, 0.1f, 1.0f);
+	stLight.Ambient = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 	stLight.Diffuse = D3DXCOLOR(0.5f, 0.5f, 0.5f, 1.0f);
 	stLight.Specular = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
