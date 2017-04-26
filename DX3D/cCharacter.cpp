@@ -48,20 +48,6 @@ void cCharacter::Update()
 			m_IsMove = true;
 		}
 
-		//조명
-		if (GetKeyState('1') & 0x8000)
-		{
-			CreateDirectionLight();
-		}
-		if (GetKeyState('2') & 0x8000)
-		{
-			CreateSpotLight();	
-		}
-		if (GetKeyState('3') & 0x8000)
-		{
-			CreatePointLight();
-		}
-
 	}
 
 	//조명 이동
@@ -173,12 +159,13 @@ void cCharacter::MoveDirectionLight()
 		m_DLightAmbientG = 0.2f;
 		m_DLightAmbientB = 0.2f;
 
-		m_DLightDiffuseR = 0.0f;
-		m_DLightDiffuseG = 0.0f;
-		m_DLightDiffuseB = 0.0f;
+		m_DLightDiffuseR = 0.1f;
+		m_DLightDiffuseG = 0.1f;
+		m_DLightDiffuseB = 0.1f;
 
 		//스포트라이트 끄기
 		g_pD3DDevice->LightEnable(1, false);
+		g_pD3DDevice->LightEnable(2, false);
 	}
 
 	m_TimeForDay++;
@@ -211,9 +198,9 @@ void cCharacter::MoveDirectionLight()
 		m_SunY -= SUNPOSCHANGEVALUE;
 		m_SunX -= SUNPOSCHANGEVALUE;
 
-		m_DLightDiffuseR += 0.0005f;
-		m_DLightDiffuseG -= 0.0025f;
-		m_DLightDiffuseB -= 0.0035f;
+		m_DLightDiffuseR += 0.0010f;
+		m_DLightDiffuseG -= 0.0015f;
+		m_DLightDiffuseB -= 0.0025f;
 	}
 	//태양 지기 시작
 	else if (m_TimeForDay <= 600)
@@ -231,6 +218,7 @@ void cCharacter::MoveDirectionLight()
 	else
 	{
 		CreateLight();
+		g_pD3DDevice->LightEnable(2, true);
 
 		m_SunX = 0;
 		m_SunY = 1.0f;
