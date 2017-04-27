@@ -28,7 +28,9 @@
 #include <map>
 #include <list>
 #include <math.h>
-
+using namespace std;
+#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console") 
+#include <iostream>
 #include <d3dx9.h>
 #pragma comment(lib, "d3d9.lib")
 #pragma comment(lib, "d3dx9.lib")

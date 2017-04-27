@@ -5,6 +5,7 @@ class cGrid;
 class cPyramid;
 class cCubeMan;
 class cCubeMan2;
+class cObjLoader;
 
 class cMainGame
 {
@@ -19,7 +20,7 @@ private:
 	cPyramid*	m_pPyramid;
 	cCubeMan*	m_pCubeMan;
 	cCubeMan2*	m_pCubeMan2;
-
+	cObjLoader* m_pObjLoader;
 	//LPDIRECT3DTEXTURE9	m_pTexture;
 	//std::vector<ST_PT_VERTEX> m_vecVertex;
 
