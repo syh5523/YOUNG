@@ -29,17 +29,17 @@ void cCharacter::Update()
 		m_IsMove = false;
 
 		if (GetKeyState('A') & 0x8000)
-			m_fRotY -= 0.037f;
+			m_fRotY -= 0.057f;
 		if (GetKeyState('D') & 0x8000)
-			m_fRotY += 0.037f;
+			m_fRotY += 0.057f;
 		if (GetKeyState('S') & 0x8000)
 		{
-			m_vPosition = m_vPosition + m_vDirection * 0.1f;
+			m_vPosition = m_vPosition + m_vDirection * 1.1f;
 			m_IsMove = true;
 		}
 		else if (GetKeyState('W') & 0x8000)
 		{
-			m_vPosition = m_vPosition - m_vDirection * 0.1f;
+			m_vPosition = m_vPosition - m_vDirection * 1.1f;
 			m_IsMove = true;
 		}
 	}
@@ -74,11 +74,6 @@ void cCharacter::Render()
 
 
 }
-
-//-----------------------------------------------------------
-//						  캐릭터 이동관련
-//-----------------------------------------------------------
-
 
 D3DXVECTOR3 & cCharacter::GetPosition()
 {
