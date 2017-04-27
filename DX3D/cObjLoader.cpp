@@ -254,8 +254,18 @@ void cObjLoader::Update()
 
 void cObjLoader::Render()
 {
+	//사이즈
+	D3DXMATRIXA16 matS;
+	D3DXMatrixScaling(&matS, 0.025f, 0.025f, 0.025f);
+
+	//로테이션
+	D3DXMATRIXA16 matR;
+	D3DXMatrixRotationX(&matR, -D3DX_PI*0.5f);
+
 	D3DXMATRIXA16 mat;
 	D3DXMatrixIdentity(&mat);
+	mat = matR * matS;
+
 
 	g_pD3DDevice->SetTransform(D3DTS_WORLD, &mat);
 	g_pD3DDevice->SetFVF(ST_PNT_VERTEX::FVF);

@@ -34,12 +34,12 @@ void cCharacter::Update()
 			m_fRotY += 0.057f;
 		if (GetKeyState('S') & 0x8000)
 		{
-			m_vPosition = m_vPosition + m_vDirection * 1.1f;
+			m_vPosition = m_vPosition + m_vDirection * 0.15f;
 			m_IsMove = true;
 		}
 		else if (GetKeyState('W') & 0x8000)
 		{
-			m_vPosition = m_vPosition - m_vDirection * 1.1f;
+			m_vPosition = m_vPosition - m_vDirection * 0.15f;
 			m_IsMove = true;
 		}
 	}
