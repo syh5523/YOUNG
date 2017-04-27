@@ -14,7 +14,6 @@ cCubeMan::cCubeMan()
 	m_Destination_Index(4), m_Currunt_Index(0), m_via_Index(2)
 {
 
-	
 }
 
 
@@ -29,7 +28,6 @@ cCubeMan::~cCubeMan()
 void cCubeMan::RecieveHexaVertext(std::vector<ST_PC_VERTEX> *vertext)
 {
 	m_vHexagon = *vertext;
-
 }
 
 void cCubeMan::Setup()
@@ -50,8 +48,6 @@ void cCubeMan::Setup()
 	m_Lenght1 = D3DXVec3Length(&(m_vHexagon[m_Destination_Index].p - m_vPosition)) / CUVNUMBER;
 	m_Lenght2 = D3DXVec3Length(&(m_vHexagon[m_Destination_Index].p - m_vHexagon[m_via_Index].p)) / CUVNUMBER;
 	m_cuvNum = CUVNUMBER;
-
-
 
 	//머터리얼
 	ZeroMemory(&m_stMaterial, sizeof(D3DMATERIAL9));
@@ -125,32 +121,6 @@ void cCubeMan::Render()
 void cCubeMan::MoveCharacter()
 {
 	//-------------------------------------------------------
-	//						그냥 돌기
-	//-------------------------------------------------------
-	{
-
-		////목적지 도착
-		//if (fabs(m_vPosition.x - m_vHexagon[m_Destination_Index].p.x) < EPSILON &&
-		//	fabs(m_vPosition.z - m_vHexagon[m_Destination_Index].p.z) < EPSILON)
-		//{
-		//	//인덱스 갱신
-		//	m_Currunt_Index = m_Destination_Index;
-		//	m_Destination_Index += 2;
-		//	if (m_Destination_Index >= m_vHexagon.size()) m_Destination_Index = 0;
-
-		//	//다음 목적지로 가능 방향의 벡터 구하기
-		//	D3DXVECTOR3 vtemp1;
-		//	vtemp1 = m_vHexagon[m_Destination_Index].p - m_vHexagon[m_Currunt_Index].p;
-		//	D3DXVec3Normalize(&vtemp1, &vtemp1);
-
-		//	m_fRotY -= acos(D3DXVec3Dot(&vtemp1, &-m_vDirection));
-
-		//	m_vPosition = m_vHexagon[m_Currunt_Index].p;
-	
-		//}
-	}
-
-	//-------------------------------------------------------
 	//						곡선으로 돌기
 	//-------------------------------------------------------
 	//현재 포지션이 지난포지션보다 길이1만큼 더 갔다면 들어와라
@@ -208,11 +178,5 @@ void cCubeMan::MoveCharacter()
 		m_cuvNum = CUVNUMBER;
 	}
 
-
-	
-
-
 	m_vPosition = m_vPosition - m_vDirection * 0.1f;
-
-
 }
