@@ -1,114 +1,121 @@
 #include "stdafx.h"
 #include "cMainGame.h"
-#include "cDeviceManager.h"		/// << :
 
 // >> :
 #include "cCubePC.h"
-#include "cGrid.h"
 #include "cCamera.h"
-#include "cPyramid.h"
+#include "cGrid.h"
 #include "cCubeMan.h"
-#include "cCubeMan2.h"
+// << :
+#include "cGroup.h"
 #include "cObjLoader.h"
 
-
-// << :
 cMainGame::cMainGame()
-	:
-	m_pGrid(NULL),
-	m_pCamera(NULL),
-	m_pPyramid(NULL),
-	m_pCubeMan(NULL),
-	m_pCubeMan2(NULL),
-	m_pObjLoader(NULL)
+	: //m_pCubePC(NULL)
+	m_pCubeMan(NULL)
+	, m_pCamera(NULL)
+	, m_pGrid(NULL)
+	, m_vecGroup(NULL)
 {
 }
 
 
 cMainGame::~cMainGame()
 {
-	SAFE_DELETE(m_pGrid);
-	SAFE_DELETE(m_pCamera);
-	SAFE_DELETE(m_pPyramid);
+	//SAFE_DELETE(m_pCubePC); 
 	SAFE_DELETE(m_pCubeMan);
-	SAFE_DELETE(m_pCubeMan2);
-	SAFE_DELETE(m_pObjLoader);
-	g_pDeviceManager->Destroy();	//¼Ò¸êÀÚ ¿ªÈ°À» ÇÏ°Ô²û ¸¸µë
+	SAFE_DELETE(m_pCamera);
+	SAFE_DELETE(m_pGrid); 
+
+	g_pDeviceManager->Destroy();
 }
 
+// >> : 
 void cMainGame::Setup()
 {
-	m_pObjLoader = new cObjLoader;
-	m_pObjLoader->Setup();
-
 	m_pGrid = new cGrid;
 	m_pGrid->Setup();
 
-	m_pPyramid = new cPyramid;
-	m_pPyramid->Setup();
-
+	cObjLoader loadObj;
+	loadObj.Load(m_vecGroup, "obj", "map_surface.obj");
+	
 	m_pCubeMan = new cCubeMan;
 	m_pCubeMan->RecieveHexaVertext(&m_pGrid->GetHexagonVertex());
-	m_pCubeMan->Setup();
-
-	m_pCubeMan2 = new cCubeMan2;
-	m_pCubeMan2->RecieveHexaVertext(&m_pGrid->GetHexagonVertex());
-	m_pCubeMan2->Setup();
-
+	m_pCubeMan->GetFloor(m_vecGroup);
+	m_pCubeMan->Setup();	
 
 	m_pCamera = new cCamera;
 	m_pCamera->Setup(&m_pCubeMan->GetPosition());
 
-	//g_pD3DDevice->SetRenderState(D3DRS_SPECULARENABLE, false);
+
 	Set_Light();
+
 }
 
 void cMainGame::Update()
 {
-	if (m_pObjLoader) m_pObjLoader->Update();
+	if (m_pCubeMan)	m_pCubeMan->Update();
+
 	if (m_pCamera) m_pCamera->Update();
-	if (m_pCubeMan) m_pCubeMan->Update();
-	//if (m_pCubeMan2) m_pCubeMan2->Update();
+
 }
 
 void cMainGame::Render()
 {
-	g_pD3DDevice->Clear(NULL, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(128, 128, 128), 1.0f, 0);
+	g_pD3DDevice->Clear(NULL,
+		NULL,
+		D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+		D3DCOLOR_XRGB(47, 121, 112),
+		1.0f, 0);
 
 	g_pD3DDevice->BeginScene();
 
-	if (m_pObjLoader) m_pObjLoader->Render();
-	//if (m_pGrid) m_pGrid->Render();
-	if (m_pPyramid) m_pPyramid->Render();
+	if (m_pGrid) m_pGrid->Render();
+	Obj_Render();
 	if (m_pCubeMan) m_pCubeMan->Render();
-	//if (m_pCubeMan2) m_pCubeMan2->Render();
+
 	g_pD3DDevice->EndScene();
 
 	g_pD3DDevice->Present(NULL, NULL, NULL, NULL);
 }
+// << : 
 
-void cMainGame::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+void cMainGame::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	if (m_pCamera) m_pCamera->WndProc(hWnd, message, wParam, lParam);
+	if (m_pCamera)
+	{
+		m_pCamera->WndProc(hwnd, message, wParam, lParam);
+	}
+}
+
+void cMainGame::Obj_Render()
+{
+	D3DXMATRIXA16 matWorld, matS, matR;
+	D3DXMatrixScaling(&matS, 0.01f, 0.01f, 0.01f);
+	D3DXMatrixRotationX(&matR, -D3DX_PI / 2.0f);
+	matWorld = matS * matR;
+	g_pD3DDevice->SetTransform(D3DTS_WORLD, &matWorld);
+
+	for each(auto p in m_vecGroup)
+	{
+		p->Render();
+	}
 }
 
 void cMainGame::Set_Light()
 {
-
-	//---------------------------------------------------------------
-	//							µð·º¼Ç
-	//---------------------------------------------------------------
 	D3DLIGHT9 stLight;
-	ZeroMemory(&stLight, sizeof(D3DLIGHT9));
-	stLight.Type = D3DLIGHT_DIRECTIONAL;
-	stLight.Ambient = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	stLight.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	stLight.Specular = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	{
+		ZeroMemory(&stLight, sizeof(D3DLIGHT9));
+		stLight.Type = D3DLIGHT_DIRECTIONAL;
+		stLight.Ambient = D3DXCOLOR(0.8f, 0.8f, 0.8f, 1.0f);
+		stLight.Diffuse = D3DXCOLOR(0.8f, 0.8f, 0.8f, 1.0f);
+		stLight.Specular = D3DXCOLOR(0.8f, 0.8f, 0.8f, 1.0f);
+		D3DXVECTOR3 vDir(1.0f, -1.0f, 1.0f);
+		D3DXVec3Normalize(&vDir, &vDir);
+		stLight.Direction = vDir;
+		g_pD3DDevice->SetLight(0, &stLight);
+	}
 
-	D3DXVECTOR3 vDir(1.0f, -1.0f, 1.0f);
-	D3DXVec3Normalize(&vDir, &vDir);
-	stLight.Direction = vDir;
-	g_pD3DDevice->SetLight(0, &stLight);
 	g_pD3DDevice->LightEnable(0, true);
-
 }

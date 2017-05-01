@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "cObjLoader.h"
+#include "cGroup.h"
+#include "cMtlTex.h"
 
 cObjLoader::cObjLoader()
 {
@@ -9,288 +11,177 @@ cObjLoader::cObjLoader()
 cObjLoader::~cObjLoader()
 {
 }
-
-
-void cObjLoader::Setup()
+void cObjLoader::Load(OUT std::vector<cGroup*>& vecGroup, IN char * szFolder, IN char * szFile)
 {
+	std::vector<D3DXVECTOR3> vecV;
+	std::vector<D3DXVECTOR2> vecVT;
+	std::vector<D3DXVECTOR3> vecVN;
+	std::vector<ST_PNT_VERTEX> vecVertex;
+
+	std::string sFullPath(szFolder);
+	sFullPath += (std::string("/") + std::string(szFile));
+
+	FILE * fp;
+	fopen_s(&fp, sFullPath.c_str(), "r");
+
+	std::string sMtlName;
+
+	while (true)
+	{
+		if (feof(fp)) break;
+
+		char szTemp[1024];
+		fgets(szTemp, 1024, fp);
+
+		if (szTemp[0] == '#')
+			continue;
+
+		if (szTemp[0] == 'm')
+		{
+			char szMtlFile[1024];
+			sscanf_s(szTemp, "%*s %s", szMtlFile, 1024);
+			LoadMtlLib(szFolder, szMtlFile);
+		}
+		else if (szTemp[0] == 'g')
+		{
+			if (!vecVertex.empty())
+			{
+				cGroup* pGroup = new cGroup;
+				pGroup->SetVertex(vecVertex);
+				pGroup->SetMtlTex(m_mapMtlTex[sMtlName]);
+				vecGroup.push_back(pGroup);
+				vecVertex.clear();
+			}
+		}
+		else if (szTemp[0] == 'v')
+		{
+			if (szTemp[1] == ' ')
+			{
+				float x, y, z;
+				sscanf_s(szTemp, "%*s %f %f %f", &x, &y, &z);
+				vecV.push_back(D3DXVECTOR3(x, y, z));
+			}
+			else if (szTemp[1] == 't')
+			{
+				float u, v;
+				sscanf_s(szTemp, "%*s %f %f %*f", &u, &v);
+				vecVT.push_back(D3DXVECTOR2(u, v));
+			}
+			else if (szTemp[1] == 'n')
+			{
+				float x, y, z;
+				sscanf_s(szTemp, "%*s %f %f %f", &x, &y, &z);
+				vecVN.push_back(D3DXVECTOR3(x, y, z));
+			}
+		}
+		else if (szTemp[0] == 'u')
+		{
+			char szMtlName[1024];
+			sscanf_s(szTemp, "%*s %s", szMtlName, 1024);
+			sMtlName = std::string(szMtlName);
+		}
+		else if (szTemp[0] == 'f')
+		{
+			int nIndex[3][3];
+			sscanf_s(szTemp, "%*s %d/%d/%d %d/%d/%d %d/%d/%d",
+				&nIndex[0][0], &nIndex[0][1], &nIndex[0][2],
+				&nIndex[1][0], &nIndex[1][1], &nIndex[1][2],
+				&nIndex[2][0], &nIndex[2][1], &nIndex[2][2]);
+
+			for (int i = 0; i < 3; ++i)
+			{
+				ST_PNT_VERTEX v;
+				v.p = vecV[nIndex[i][0] - 1];
+				v.t = vecVT[nIndex[i][1] - 1];
+				v.n = vecVN[nIndex[i][2] - 1];
+				vecVertex.push_back(v);
+			}
+		}
+	}
+
+	fclose(fp);
+
+	for each(auto it in m_mapMtlTex)
+	{
+		SAFE_RELEASE(it.second);
+	}
+	m_mapMtlTex.clear();
+}
+void cObjLoader::LoadMtlLib(char * szFolder, char * szFile)
+{
+	std::string sFullPath(szFolder);
+	sFullPath += (std::string("/") + std::string(szFile));
 
 	FILE* fp;
-	fopen_s(&fp, "Map.obj", "r");
-	//fopen_s(&fp, "Box.obj", "r");
-	//fopen_s(&fp, "map_surface.obj", "r");
-	
-	char szBuf[STRBUF] = { 0, };
-	char saveBuf[STRBUF] = { 0, };
-	char MtlFileName[STRBUF];
-	float x;
-	float y;
-	float z;
+	fopen_s(&fp, sFullPath.c_str(), "r");
 
-	//자료파싱하기
+	std::string sMtlName;
 	while (true)
-	{	
+	{
 		if (feof(fp)) break;
-		
 
-		//한줄씩 읽어옴
-		fgets(szBuf, sizeof(szBuf), fp);
+		char szTemp[1024];
+		fgets(szTemp, 1024, fp);
 
-		//# == 주석이므로 skip함
-		if (szBuf[0] == '#' || szBuf[0] == '\n') continue;
+		if (szTemp[0] == '#')
+			continue;
 
-		//첫번째 단어 저장
-		string firstWord;
-		sscanf_s(szBuf, "%s", saveBuf, sizeof(saveBuf));
-		firstWord = saveBuf;
-
-		if (firstWord == "stop") break;
-
-		if (firstWord == "g")
+		if (szTemp[0] == 'n')
 		{
-			char str[128] = { 0, };
-			sscanf_s(szBuf, "%*s%s", str, sizeof(str));
+			char szMtlName[1024];
+			sscanf_s(szTemp, "%*s %s", szMtlName, 1024);
+			sMtlName = std::string(szMtlName);
 
-			//g가 나왔는데 뒤에 아무것도 없을 시엔 오브젝트를 하나 형성한다.
-			if (str[0] == NULL)
+			if (m_mapMtlTex.find(sMtlName) == m_mapMtlTex.end())
+				m_mapMtlTex[sMtlName] = new cMtlTex;
+		}
+		else if (szTemp[0] == 'K')
+		{
+			if (szTemp[1] == 'a')
 			{
-				//사이즈가 0이면 크기만 늘림
-				if (m_vObject.size() == 0)
-				{
-					cObject* tempObject = new cObject;
-					m_vObject.push_back(tempObject);
-					continue;
-				}
-				//사이즈가 0이 아니면 PNT 정리하기
-				else
-				{
-					//PNT 정리하기					
-					for (int j = 0; j < m_vIndex_VTN.size(); ++j)
-					{
-						ST_PNT_VERTEX temp;
-						ZeroMemory(&temp, sizeof(temp));
-
-						temp.p = m_vVertex[m_vIndex_VTN[j].x];
-						temp.t = m_vTextureUV[m_vIndex_VTN[j].y];
-						temp.n = m_vNormal[m_vIndex_VTN[j].z];
-
-						m_vObject[m_vObject.size() - 1]->PushPNT(temp);
-
-						
-					}
-					cObject* tempObject = new cObject;
-					m_vObject.push_back(tempObject);
-					m_vIndex_VTN.clear();
-					continue;
-				}
+				float r, g, b;
+				sscanf_s(szTemp, "%*s %f %f %f", &r, &g, &b);
+				m_mapMtlTex[sMtlName]->GetMaterial().Ambient.r = r;
+				m_mapMtlTex[sMtlName]->GetMaterial().Ambient.g = g;
+				m_mapMtlTex[sMtlName]->GetMaterial().Ambient.b = b;
+				m_mapMtlTex[sMtlName]->GetMaterial().Ambient.a = 1.0f;
 			}
-			//g가 나왔는데 뒤에 오브젝트 이름이 있을 시
-			else
+			else if (szTemp[1] == 'd')
 			{
-				//이름 저장
-				m_vObject[m_vObject.size() - 1]->SetObjName(str);
-				continue;
-			}	
+				float r, g, b;
+				sscanf_s(szTemp, "%*s %f %f %f", &r, &g, &b);
+				m_mapMtlTex[sMtlName]->GetMaterial().Diffuse.r = r;
+				m_mapMtlTex[sMtlName]->GetMaterial().Diffuse.g = g;
+				m_mapMtlTex[sMtlName]->GetMaterial().Diffuse.b = b;
+				m_mapMtlTex[sMtlName]->GetMaterial().Diffuse.a = 1.0f;
+			}
+			else if (szTemp[1] == 's')
+			{
+				float r, g, b;
+				sscanf_s(szTemp, "%*s %f %f %f", &r, &g, &b);
+				m_mapMtlTex[sMtlName]->GetMaterial().Specular.r = r;
+				m_mapMtlTex[sMtlName]->GetMaterial().Specular.g = g;
+				m_mapMtlTex[sMtlName]->GetMaterial().Specular.b = b;
+				m_mapMtlTex[sMtlName]->GetMaterial().Specular.a = 1.0f;
+			}
 		}
-
-
-		//mtlLib(머터리얼 라이브러리)는 다읽고 일어봐야 하므로 저장해둠.
-		if (firstWord == "mtllib")
+		else if (szTemp[0] == 'd')
 		{
-			sscanf_s(szBuf, "%*s%s", &MtlFileName, sizeof(MtlFileName));
-			continue;
+			float d;
+			sscanf_s(szTemp, "%*s %f", &d);
+			m_mapMtlTex[sMtlName]->GetMaterial().Power = d;
 		}
-		
-		//v라면 버텍스 
-		if(firstWord == "v")
+		else if (szTemp[0] == 'm')
 		{
-			sscanf_s(szBuf, "%*s%f%f%f", &x, &y, &z);
+			char szTexFile[1024];
+			sscanf_s(szTemp, "%*s %s", szTexFile, 1024);
+			sFullPath = std::string(szFolder);
+			sFullPath += (std::string("/") + std::string(szTexFile));
 
-			D3DXVECTOR3 tempVertex = D3DXVECTOR3(x, y, z);
-			m_vVertex.push_back(tempVertex);
-
-			continue;
-		}
-
-		//vt
-		if (firstWord == "vt")
-		{
-			sscanf_s(szBuf, "%*s%f%f", &x, &y);
-
-			D3DXVECTOR2 tempUV = D3DXVECTOR2(x, y);
-			m_vTextureUV.push_back(tempUV);
-			continue;
-		}
-
-		//vn라면 법선벡터
-		if (firstWord == "vn")
-		{
-			sscanf_s(szBuf, "%*s%f%f%f", &x, &y, &z);
-
-			D3DXVECTOR3 tempNormal = D3DXVECTOR3(x, y, z);
-			m_vNormal.push_back(tempNormal);
-
-			continue;
-		}
-
-
-		//인덱스
-		if (firstWord == "f")
-		{
-			//첫번째 
-			sscanf_s(szBuf, "%*s %f %*c %f %*c %f", &x, &y, &z);
-			D3DXVECTOR3 tempIndex = D3DXVECTOR3(x - 1, y - 1, z - 1);
-			m_vIndex_VTN.push_back(tempIndex);
-
-			//두번째
-			sscanf_s(szBuf, "%*s%*s %f %*c %f %*c %f", &x, &y, &z);
-			tempIndex = D3DXVECTOR3(x - 1, y - 1, z - 1);
-			m_vIndex_VTN.push_back(tempIndex);
-
-
-			//세번째
-			sscanf_s(szBuf, "%*s %*s %*s %f %*c %f %*c %f", &x, &y, &z);
-			tempIndex = D3DXVECTOR3(x - 1, y - 1, z - 1);
-			m_vIndex_VTN.push_back(tempIndex);
-			continue;
-
-		}
-
-		//그룹 네임
-		if (firstWord == "usemtl")
-		{
-			char str[128];
-
-			sscanf_s(szBuf, "%*s %s", &str, sizeof(str));
-			m_vObject[m_vObject.size() - 1]->SetMtlName(str);
+			LPDIRECT3DTEXTURE9 pTexture = g_pTextureManager->GetTexture(sFullPath);
+			m_mapMtlTex[sMtlName]->SetTexture(pTexture);
 		}
 	}
 
 	fclose(fp);
-
-	//머터리얼 불러오기 
-	fopen_s(&fp, MtlFileName, "r");
-	char curruntMtlName[128] = { 0, };;
-	char curruntImgName[128] = { 0, };;
-
-	D3DCOLORVALUE Ambient;
-	D3DCOLORVALUE Diffuse;
-	D3DCOLORVALUE Specular;
-	float Power = 0.0f;
-
-	//머터리얼 자료 파싱하기
-	while (true)
-	{
-		if (feof(fp)) break;
-
-		//한줄씩 읽어옴
-		fgets(szBuf, sizeof(szBuf), fp);
-
-		//# == 주석이므로 skip함
-		if (szBuf[0] == '#' || szBuf[0] == '\n') continue;
-
-		//첫번째 단어 저장
-		string firstWord;
-		sscanf_s(szBuf, "%s", saveBuf, sizeof(saveBuf));
-		firstWord = saveBuf;
-
-
-		if (firstWord == "newmtl")
-		{
-			sscanf_s(szBuf, "%*s%s", &curruntMtlName, sizeof(curruntMtlName));
-			continue;
-		}
-		if (firstWord == "Ka")
-		{
-			sscanf_s(szBuf, "%*s %f %f %f", &x, &y, &z);		
-			Ambient = D3DXCOLOR(x, y, z, 1.0f);
-
-		}
-		if (firstWord == "Kd")
-		{
-			sscanf_s(szBuf, "%*s %f %f %f", &x, &y, &z);
-			Diffuse = D3DXCOLOR(x, y, z, 1.0f);
-		}
-		if (firstWord == "Ks")
-		{
-			sscanf_s(szBuf, "%*s %f %f %f", &x, &y, &z);
-			Specular = D3DXCOLOR(x, y, z, 1.0f);
-		}
-		if (firstWord == "d")
-		{
-			sscanf_s(szBuf, "%*s %f", &Power);
-		}
-
-
-		if (firstWord == "map_Kd")
-		{
-			sscanf_s(szBuf, "%*s%s", &curruntImgName, sizeof(curruntImgName));
-			
-			cMtltex* tempMtl = new cMtltex;
-			D3DMATERIAL9 stMtl;
-			ZeroMemory(&stMtl, sizeof(stMtl));
-			stMtl.Ambient = Ambient;
-			stMtl.Diffuse = Diffuse;
-			stMtl.Specular = Specular;
-			stMtl.Power = Power;
-
-			tempMtl->SetImgName(curruntImgName);
-			tempMtl->SetMtlName(curruntMtlName);
-			tempMtl->SetMtl(stMtl);
-
-			m_mMtlTexture.insert(make_pair(curruntMtlName, tempMtl));
-		}
-
-	}
-
-	fclose(fp);
-
-
-
-}
-
-void cObjLoader::Update()
-{
-}
-
-void cObjLoader::Render()
-{
-	//사이즈
-	D3DXMATRIXA16 matS;
-	D3DXMatrixScaling(&matS, 0.025f, 0.025f, 0.025f);
-
-	//로테이션
-	D3DXMATRIXA16 matR;
-	D3DXMatrixRotationX(&matR, -D3DX_PI*0.5f);
-
-	D3DXMATRIXA16 mat;
-	D3DXMatrixIdentity(&mat);
-	mat = matR * matS;
-
-
-	g_pD3DDevice->SetTransform(D3DTS_WORLD, &mat);
-	g_pD3DDevice->SetFVF(ST_PNT_VERTEX::FVF);
-
-	for (int i = 0; i < m_vObject.size() - 1; ++i)
-	{
-	
-		//텍스처
-		LPDIRECT3DTEXTURE9 tempTexture;
-		ZeroMemory(&tempTexture, sizeof(LPDIRECT3DTEXTURE9));
-		D3DXCreateTextureFromFile(g_pD3DDevice, 
-			m_mMtlTexture.find(m_vObject[i]->GetMtlName())->second->GetImgName().c_str(), &tempTexture);
-
-		//머터리얼, 텍스쳐 설정
-		g_pD3DDevice->SetMaterial(&m_mMtlTexture.find(m_vObject[i]->GetMtlName())->second->GetMtl());
-		g_pD3DDevice->SetTexture(0, tempTexture);
-
-		//삼각형 그리기
-		g_pD3DDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, m_vObject[i]->GetPNT().size() / 3,
-			&m_vObject[i]->GetPNT()[0], sizeof(ST_PNT_VERTEX));
-
-		
-		g_pD3DDevice->SetTexture(0, NULL);
-		SAFE_RELEASE(tempTexture);
-	}
-
-
 }

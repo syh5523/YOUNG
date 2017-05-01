@@ -1,7 +1,7 @@
 #pragma once
 
 #define SUNPOSCHANGEVALUE	(0.005f)
-#define EPSILON				(0.1f)
+
 class cCharacter
 {
 public:
@@ -17,6 +17,7 @@ protected:
 
 	bool			m_IsIdle;
 	int				m_IdleCount;
+
 
 public:
 	virtual ~cCharacter();

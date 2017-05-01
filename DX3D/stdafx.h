@@ -38,6 +38,7 @@ using namespace std;
 extern HWND g_hWnd;
 #define SAFE_RELEASE(p){if(p) p->Release(); p =NULL;}
 #define SAFE_DELETE(p) { if (p) delete p; p = NULL; }
+#define SAFE_ADD_REF(p) { if(p) p->AddRef();}
 
 //------------------------------------------------------------------------
 //								ΩÃ±€≈Ê
@@ -58,15 +59,34 @@ extern HWND g_hWnd;
 //------------------------------------------------------------------------
 
 #define SYNTHESIZE(varType, varName, funName)\
-private: varType varName;\
+protected: varType varName;\
 public: inline varType Get##funName(void) const { return varName; }\
-public: inline void Set##funName(varType var) { varName = var; }
+public: inline void Set##funName(varType var){ varName = var; }
+
+#define SYNTHESIZE_PASS_BY_REF(varType, varName, funName)\
+protected: varType varName;\
+public: inline varType& Get##funName(void) { return varName; }\
+public: inline void Set##funName(varType& var){ varName = var; }
+
+#define SYNTHESIZE_ADD_REF(varType, varName, funName)\
+protected: varType varName;\
+public: virtual varType Get##funName(void) const { return varName; }\
+public: virtual void Set##funName(varType var)\
+	{ \
+		if(varName != var) \
+			{\
+				SAFE_ADD_REF(var);\
+			} \
+		SAFE_RELEASE(varName); \
+		varName = var;\
+	}
 
 //------------------------------------------------------------------------
 //							ΩÃ±€≈Ê«Ï¥ı √ﬂ∞°
 //------------------------------------------------------------------------
 #include "cDeviceManager.h"
-
+#include "cTextureManager.h"
+#include "cObjectManager.h"
 
 //-----------------------------------------------------------
 //						 ±∏¡∂√º
@@ -105,7 +125,3 @@ struct ST_PT_VERTEX
 #define SAMPLE_WIDTH    (0.015625f)
 #define SAMPLE_HEIGHT   (0.03125f)
 
-
-
-
-//#pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console")

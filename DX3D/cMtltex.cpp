@@ -1,13 +1,15 @@
 #include "stdafx.h"
-#include "cMtltex.h"
+#include "cMtlTex.h"
 
 
-cMtltex::cMtltex()
+cMtlTex::cMtlTex()
+	:m_pTexture(NULL)
 {
+	ZeroMemory(&m_stMtl, sizeof(D3DMATERIAL9));
 }
 
 
-cMtltex::~cMtltex()
+cMtlTex::~cMtlTex()
 {
-
+	SAFE_RELEASE(m_pTexture);
 }

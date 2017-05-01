@@ -3,15 +3,24 @@
 
 
 cObject::cObject()
+	:m_ulRefCount(1)
 {
 }
 
 
 cObject::~cObject()
 {
+	g_pObjectManager->RemoveObject(this);
 }
 
-void cObject::PushPNT(ST_PNT_VERTEX tagPNT)
+void cObject::AddRef()
 {
-	m_vPNT.push_back(tagPNT);
+	m_ulRefCount++;
+}
+
+void cObject::Release()
+{
+	m_ulRefCount--;
+
+	if (m_ulRefCount == 0) delete this;
 }

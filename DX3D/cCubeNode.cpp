@@ -5,7 +5,7 @@
 cCubeNode::cCubeNode()
 	: m_fRotDeltaX(0.0f)
 	, m_pParentWorldTransMatrix(NULL),
-	m_vLocalPosition(0, 0, 0),
+	m_vLocalPosition(0, 1, 0),
 	m_IsRotate(false), m_IsMove(false)
 {
 	D3DXMatrixIdentity(&m_matLocalTransMatrix);

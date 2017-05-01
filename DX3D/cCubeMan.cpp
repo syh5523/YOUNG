@@ -7,11 +7,13 @@
 #include "cLeftLeg.h"
 #include "cRightArm.h"
 #include "cRightLeg.h"
+#include "cGroup.h"
 
 cCubeMan::cCubeMan()
 	: m_pRoot(NULL),
 	m_pTexture(NULL),
-	m_Destination_Index(4), m_Currunt_Index(0), m_via_Index(2)
+	m_Destination_Index(4), m_Currunt_Index(0), m_via_Index(2),
+	m_u(0), m_v(0), m_dist(0), a(0)
 {
 
 }
@@ -85,7 +87,6 @@ void cCubeMan::Setup()
 	pLeftLeg->Setup();
 	m_pRoot->AddChild(pLeftLeg);
 
-	
 
 }
 
@@ -95,8 +96,13 @@ void cCubeMan::Update()
 	if (m_pRoot)
 		m_pRoot->Update();
 
-	//캐릭터 이동
+	//캐릭터 이동(베지어 곡선)
 	MoveCharacter();
+
+	//바닥 충돌
+	IntersectTri();
+
+
 }
 
 void cCubeMan::Render()
@@ -116,6 +122,44 @@ void cCubeMan::Render()
 
 	g_pD3DDevice->SetTexture(0, NULL);
 }
+
+void cCubeMan::GetFloor(vector<cGroup*> floor)
+{
+	m_vFloor = floor;
+}
+
+void cCubeMan::IntersectTri()
+{
+	
+
+	for (int i = 0; i < m_vFloor[0]->GetVertex().size() - 1; i+=3)
+	{
+		D3DXVECTOR3 v0 = m_vFloor[0]->GetVertex()[i].p * 0.01f;
+		D3DXVECTOR3 v1 = m_vFloor[0]->GetVertex()[i + 1].p* 0.01f;
+		D3DXVECTOR3 v2 = m_vFloor[0]->GetVertex()[i + 2].p* 0.01f;
+
+
+		if (
+			D3DXIntersectTri(
+				&v0,
+				&v1,
+				&v2,
+				&D3DXVECTOR3(m_vPosition.x, 1000, m_vPosition.z),
+				&D3DXVECTOR3(0, -1, 0),
+				&m_u, &m_v, &m_dist)
+			)
+		{
+			cout << m_vPosition.x << endl;
+		}
+
+		if(a == 0)cout << v0.x << endl;
+
+	}
+	
+	a++;
+
+}
+
 
 
 void cCubeMan::MoveCharacter()
@@ -180,3 +224,5 @@ void cCubeMan::MoveCharacter()
 
 	//m_vPosition = m_vPosition - m_vDirection * 0.1f;
 }
+
+
