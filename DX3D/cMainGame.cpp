@@ -54,8 +54,8 @@ void cMainGame::Setup()
 	//m_pCubeMan->Setup();	
 	
 	m_pCamera = new cCamera;
-	//m_pCamera->Setup(&m_vecGroup[0]->GetVertex()[0].p);
-	m_pCamera->Setup(&D3DXVECTOR3(0,0,0));
+	m_pCamera->Setup(&m_vecGroup[0]->GetVertex()[0].p);
+	//m_pCamera->Setup(&D3DXVECTOR3(0,0,0));
 
 
 	Set_Light();

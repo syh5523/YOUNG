@@ -226,15 +226,26 @@ void cAseLoader::LoadAse(OUT vector<cGroup*>& vecGroup, IN char * szFolder, IN c
 							else if (sFirstName == ID_TM_ROW2) nRow = 2;
 							else if (sFirstName == ID_TM_ROW3) nRow = 3;
 
-							sscanf_s(szTemp, "%*s %f %f %f", &x, &y, &z);
-							matWorld.m[nRow][0] = x;
-							matWorld.m[nRow][1] = y;
-							matWorld.m[nRow][2] = z;	
+							sscanf_s(szTemp, "%*s %f %f %f", &x, &z, &y);
+							if (sFirstName == ID_TM_ROW0 || sFirstName == ID_TM_ROW3)
+							{
+								matWorld.m[nRow][0] = x;
+								matWorld.m[nRow][1] = y;
+								matWorld.m[nRow][2] = z;
+							}
+							else
+							{
+								matWorld.m[nRow][0] = x;
+								matWorld.m[nRow][1] = z;
+								matWorld.m[nRow][2] = y;
+							}
 						}
 					}
+					
+					
 
 					if (ParentsName != "")
-					{
+					{				
 						matWorld *= *m_mapMatWorld.find(ParentsName)->second;
 					}
 
@@ -287,11 +298,19 @@ void cAseLoader::LoadAse(OUT vector<cGroup*>& vecGroup, IN char * szFolder, IN c
 									int nIndex;
 									float x, y, z;
 
-									sscanf_s(szTemp, "%*s %d %f %f %f", &nIndex, &x, &y, &z);
+									sscanf_s(szTemp, "%*s %d %f %f %f", &nIndex, &x, &z, &y);
 
+									//행렬계산(현재안씀)
 									/*D3DXVECTOR3 vTemp;
+									D3DXMATRIXA16 matLocal = *m_mapMatWorld.find(MyName)->second;
+									if (ParentsName != "")
+									{
+										D3DXMATRIXA16 matPInverse = *m_mapMatWorld.find(ParentsName)->second;
+										D3DXMatrixInverse(&matPInverse, 0, &matPInverse);
+										matLocal *= matPInverse;
+									}
 									D3DXVec3TransformCoord(&vTemp, &(D3DXVECTOR3(x, y, z)), 
-										m_mapMatWorld.find(MyName)->second);*/
+										&matLocal);*/
 		
 									vecP[nIndex] = D3DXVECTOR3(x, y, z);
 									
@@ -314,7 +333,7 @@ void cAseLoader::LoadAse(OUT vector<cGroup*>& vecGroup, IN char * szFolder, IN c
 									int meshIndex;
 									int Index1, Index2, Index3;
 
-									sscanf_s(szTemp, "%*s %d: %*s %d %*s %d %*s %d", &meshIndex, &Index1, &Index2, &Index3);
+									sscanf_s(szTemp, "%*s %d: %*s %d %*s %d %*s %d", &meshIndex, &Index1, &Index3, &Index2);
 
 									vecPNT[(meshIndex * 3)].p = vecP[Index1];
 									vecPNT[(meshIndex * 3) + 1].p = vecP[Index2];
@@ -329,7 +348,7 @@ void cAseLoader::LoadAse(OUT vector<cGroup*>& vecGroup, IN char * szFolder, IN c
 						{
 							int nMesh_NumTVertex;
 							sscanf_s(szTemp, "%*s %d", &nMesh_NumTVertex);
-							vecT.resize(nMesh_NumTVertex);
+							vecT.resize(nMesh_NumTVertex);							
 						}
 					
 						//텍스처 좌표 리스트
@@ -345,15 +364,27 @@ void cAseLoader::LoadAse(OUT vector<cGroup*>& vecGroup, IN char * szFolder, IN c
 								if (sFirstName == ID_MESH_TVERT)
 								{
 									int nIndex;
-									float u, v, uv;
+									float u, v;
 
-									sscanf_s(szTemp, "%*s %d %f %f %f", &nIndex, &u, &uv, &v);
+									sscanf_s(szTemp, "%*s %d %f %f", &nIndex, &u, &v);
 
 									vecT[nIndex].x = u;
-									vecT[nIndex].y = v;
+									vecT[nIndex].y = 1.0f - v;
 								}
 							}
 						}
+						
+						////텍스쳐 삼각형 갯수 저장(현재 필요가없음)
+						//else if (sFirstName == ID_MESH_NUMTVFACES)
+						//{
+						//	int nMesh_NumTFaces;
+						//	sscanf_s(szTemp, "%*s %d", &nMesh_NumTFaces);
+
+						//	if (nMesh_NumTFaces > vecPNT.size())
+						//	{
+						//		vecPNT.resize(nMesh_NumTFaces);
+						//	}
+						//}
 						
 						//삼각형 텍스쳐 인덱스 좌표 저장
 						else if (sFirstName == ID_MESH_TFACELIST)
@@ -370,7 +401,7 @@ void cAseLoader::LoadAse(OUT vector<cGroup*>& vecGroup, IN char * szFolder, IN c
 									int nIndex;
 									float x, y, z;
 
-									sscanf_s(szTemp, "%*s %d %f %f %f", &nIndex, &x, &y, &z);
+									sscanf_s(szTemp, "%*s %d %f %f %f", &nIndex, &x, &z, &y);
 
 									vecPNT[(nIndex * 3)].t = vecT[x];
 									vecPNT[(nIndex * 3) + 1].t = vecT[y];
@@ -401,7 +432,6 @@ void cAseLoader::LoadAse(OUT vector<cGroup*>& vecGroup, IN char * szFolder, IN c
 									vecPNT[(nIdx_Normal * 3)].n = D3DXVECTOR3(x, y, z);
 									vecPNT[(nIdx_Normal * 3) + 1].n = D3DXVECTOR3(x, y, z);
 									vecPNT[(nIdx_Normal * 3) + 2].n = D3DXVECTOR3(x, y, z);
-
 								}
 							}
 						}
@@ -420,6 +450,17 @@ void cAseLoader::LoadAse(OUT vector<cGroup*>& vecGroup, IN char * szFolder, IN c
 		
 		if (!vecPNT.empty())
 		{
+			sscanf_s(MyName.c_str(), "%s", cFirstName, BUFFER);
+			
+			//본 일시 추가 안함
+			if (cFirstName[0] == 'B' && cFirstName[1] == 'i' && cFirstName[2] == 'p')
+			{
+				vecPNT.clear();
+				vecP.clear();
+				vecT.clear();
+				continue;
+			}
+
 			cGroup* pGroup = new cGroup;
 			pGroup->SetVertex(vecPNT);			
 			if(nMtl != -1) pGroup->SetMtlTex(m_mapMtlTex[nMtl]);
