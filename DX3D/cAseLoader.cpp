@@ -2,6 +2,7 @@
 #include "cAseLoader.h"
 #include "Asciitok.h"
 #include "cMtltex.h"
+#include "cGroup.h"
 
 cAseLoader::cAseLoader()
 {
@@ -20,12 +21,11 @@ void cAseLoader::LoadAse(OUT vector<cGroup*>& vecGroup, IN char * szFolder, IN c
 	fopen_s(&fp, sFullPath.c_str(), "r");
 
 	vector<D3DXVECTOR3> vecP;
-	//vector<D3DXVECTOR2> vecTexture;
+	vector<D3DXVECTOR2> vecT;
 	vector<ST_PNT_VERTEX> vecPNT;
 
-	string sMtlName;
-	string ParentsName;
-	string MyName;
+	
+
 	D3DXMATRIXA16 matWorld;
 	
 	int nCur_mIndex = 0;		//<< 현재 머터리얼 인덱스 저장
@@ -42,94 +42,127 @@ void cAseLoader::LoadAse(OUT vector<cGroup*>& vecGroup, IN char * szFolder, IN c
 		fgets(szTemp, BUFFER, fp);
 		sscanf_s(szTemp, "%s", cFirstName, BUFFER);
 		sFirstName = cFirstName;
-
+	
+		string sMtlName;
+		string ParentsName;
+		string MyName;
+		int nMtl = -1;
+		if (sFirstName == "Bip01 Footsteps") break;
 		//컨티뉴
-		if (sFirstName == "{" || sFirstName == "}") continue;
-
-
-		////머터리얼 갯수 검사
-		//else if (sFirstName == ID_MATERIAL_COUNT)
-		//{
-		//	int nMaterial_Count;
-		//	char cTemp[BUFFER];
-
-		//	sscanf_s(szTemp, "%*s %s", cTemp, BUFFER);
-		//	nMaterial_Count = atoi(cTemp);
-
-		//	continue;
-		//}
-		//현재 머터리얼 인덱스 저장
-		else if (sFirstName == ID_MATERIAL)
-		{
-			int nMaterial_Index;
-			sscanf_s(szTemp, "%*s %d", &nCur_mIndex);
-
-			//현재 머터리얼이 저장되어 있지 않으면 생성
-			if (m_mapMtlTex.find(nCur_mIndex) == m_mapMtlTex.end())
-				m_mapMtlTex[nCur_mIndex] = new cMtlTex;
-
-			continue;
-		}
-		//현재 머터리얼 Ambient 저장
-		else if (sFirstName == ID_AMBIENT)
-		{
-			float r, g, b;
-
-			sscanf_s(szTemp, "%*s %f %f %f", &r, &g, &b);
-			m_mapMtlTex[nCur_mIndex]->GetMaterial().Ambient.r = r;
-			m_mapMtlTex[nCur_mIndex]->GetMaterial().Ambient.g = g;
-			m_mapMtlTex[nCur_mIndex]->GetMaterial().Ambient.b = b;
-			m_mapMtlTex[nCur_mIndex]->GetMaterial().Ambient.a = 1.0f;
-
-			continue;
-		}
-		//현재 머터리얼 Diffuse 저장
-		else if (sFirstName == ID_DIFFUSE)
-		{
-			float r, g, b;
-
-			sscanf_s(szTemp, "%*s %f %f %f", &r, &g, &b);
-
-			m_mapMtlTex[nCur_mIndex]->GetMaterial().Diffuse.r = r;
-			m_mapMtlTex[nCur_mIndex]->GetMaterial().Diffuse.g = g;
-			m_mapMtlTex[nCur_mIndex]->GetMaterial().Diffuse.b = b;
-			m_mapMtlTex[nCur_mIndex]->GetMaterial().Diffuse.a = 1.0f;
-
-			continue;
-		}
-		//현재 머터리얼 Specular 저장
-		else if (sFirstName == ID_SPECULAR)
-		{
-			float r, g, b;
-
-			sscanf_s(szTemp, "%*s %f %f %f", &r, &g, &b);
-
-			m_mapMtlTex[nCur_mIndex]->GetMaterial().Specular.r = r;
-			m_mapMtlTex[nCur_mIndex]->GetMaterial().Specular.g = g;
-			m_mapMtlTex[nCur_mIndex]->GetMaterial().Specular.b = b;
-			m_mapMtlTex[nCur_mIndex]->GetMaterial().Specular.a = 1.0f;
-
-			continue;
-		}
-		//BITMAP 저장
-		else if (sFirstName == ID_BITMAP)
-		{
-			char cTemp[BUFFER];
-			sscanf_s(szTemp, "%*s %*c %s", cTemp, BUFFER);		
-			sFullPath = cTemp;
-			sFullPath.pop_back();
+		if (sFirstName == "{") continue;
 		
-			LPDIRECT3DTEXTURE9 pTexture = g_pTextureManager->GetTexture(sFullPath);
-			m_mapMtlTex[nCur_mIndex]->SetTexture(pTexture);
+		//머터리얼들 세팅
+		if (sFirstName == ID_MATERIAL_LIST)
+		{
+			while (true)
+			{
+				fgets(szTemp, BUFFER, fp);
+				sscanf_s(szTemp, "%s", cFirstName, BUFFER);
+				sFirstName = cFirstName;
+				if (sFirstName == "}")	break;
 
-			continue;
+				////머터리얼 갯수 검사
+				//else if (sFirstName == ID_MATERIAL_COUNT)
+				//{
+				//	int nMaterial_Count;
+				//	char cTemp[BUFFER];
+
+				//	sscanf_s(szTemp, "%*s %s", cTemp, BUFFER);
+				//	nMaterial_Count = atoi(cTemp);
+
+				//	continue;
+				//}
+
+				//현재 머터리얼 인덱스 저장
+				if (sFirstName == ID_MATERIAL)
+				{
+					int nMaterial_Index;
+					sscanf_s(szTemp, "%*s %d", &nCur_mIndex);
+
+					//현재 머터리얼이 저장되어 있지 않으면 생성
+					if (m_mapMtlTex.find(nCur_mIndex) == m_mapMtlTex.end())
+						m_mapMtlTex[nCur_mIndex] = new cMtlTex;
+
+					while (true)
+					{
+						fgets(szTemp, BUFFER, fp);
+						sscanf_s(szTemp, "%s", cFirstName, BUFFER);
+						sFirstName = cFirstName;
+						if (sFirstName == "}")	break;
+
+						//현재 머터리얼 Ambient 저장
+						if (sFirstName == ID_AMBIENT)
+						{
+							float r, g, b;
+
+							sscanf_s(szTemp, "%*s %f %f %f", &r, &g, &b);
+							m_mapMtlTex[nCur_mIndex]->GetMaterial().Ambient.r = r;
+							m_mapMtlTex[nCur_mIndex]->GetMaterial().Ambient.g = g;
+							m_mapMtlTex[nCur_mIndex]->GetMaterial().Ambient.b = b;
+							m_mapMtlTex[nCur_mIndex]->GetMaterial().Ambient.a = 1.0f;
+
+							continue;
+						}
+						//현재 머터리얼 Diffuse 저장
+						else if (sFirstName == ID_DIFFUSE)
+						{
+							float r, g, b;
+
+							sscanf_s(szTemp, "%*s %f %f %f", &r, &g, &b);
+
+							m_mapMtlTex[nCur_mIndex]->GetMaterial().Diffuse.r = r;
+							m_mapMtlTex[nCur_mIndex]->GetMaterial().Diffuse.g = g;
+							m_mapMtlTex[nCur_mIndex]->GetMaterial().Diffuse.b = b;
+							m_mapMtlTex[nCur_mIndex]->GetMaterial().Diffuse.a = 1.0f;
+
+							continue;
+						}
+						//현재 머터리얼 Specular 저장
+						else if (sFirstName == ID_SPECULAR)
+						{
+							float r, g, b;
+
+							sscanf_s(szTemp, "%*s %f %f %f", &r, &g, &b);
+
+							m_mapMtlTex[nCur_mIndex]->GetMaterial().Specular.r = r;
+							m_mapMtlTex[nCur_mIndex]->GetMaterial().Specular.g = g;
+							m_mapMtlTex[nCur_mIndex]->GetMaterial().Specular.b = b;
+							m_mapMtlTex[nCur_mIndex]->GetMaterial().Specular.a = 1.0f;
+
+							continue;
+						}
+						//디퓨즈 디테일 세팅
+						else if (sFirstName == ID_MAP_DIFFUSE)
+						{
+							while (true)
+							{
+								fgets(szTemp, BUFFER, fp);
+								sscanf_s(szTemp, "%s", cFirstName, BUFFER);
+								sFirstName = cFirstName;
+								if (sFirstName == "}")	break;
+
+								//BITMAP 저장
+								if (sFirstName == ID_BITMAP)
+								{
+									char cTemp[BUFFER];
+									sscanf_s(szTemp, "%*s %*c %s", cTemp, BUFFER);
+									sFullPath = cTemp;
+									sFullPath.pop_back();
+
+									LPDIRECT3DTEXTURE9 pTexture = g_pTextureManager->GetTexture(sFullPath);
+									m_mapMtlTex[nCur_mIndex]->SetTexture(pTexture);
+								}
+							}
+						}
+						
+					}
+				}
+			}
 		}
 
-		//-----------------------------------------------------머터리얼 끝
-		//-----------------------------------------------------GEOMOBJECT 시작
-		
-		//시작시 이름들 초기화
-		else if (sFirstName == ID_GEOMETRY)
+
+		//지오메트리 세팅
+		if (sFirstName == ID_GEOMETRY)
 		{
 			MyName = "";
 			ParentsName = "";
@@ -139,32 +172,40 @@ void cAseLoader::LoadAse(OUT vector<cGroup*>& vecGroup, IN char * szFolder, IN c
 				fgets(szTemp, BUFFER, fp);
 				sscanf_s(szTemp, "%s", cFirstName, BUFFER);
 				sFirstName = cFirstName;
+
+
+
+
 				if (sFirstName == "}") break;
 
 				//자신의 이름 저장
 				if (sFirstName == ID_NODE_NAME)
 				{
-					
-					char cTemp[BUFFER];
-					sscanf_s(szTemp, "%*s %*c %s", cTemp, BUFFER);
+					char* cTemp;
+					strtok_s(szTemp, " ", &cTemp);
+	
 					MyName = cTemp;
 					MyName.pop_back();
-
+					MyName.pop_back();
+					MyName.erase(0, 1);
 					continue;
 				}
 				//부모의 이름 저장
 				else if (sFirstName == ID_NODE_PARENT)
 				{
-					char cTemp[BUFFER];
-					sscanf_s(szTemp, "%*s %*c %s", cTemp, BUFFER);
+					char* cTemp;
+					strtok_s(szTemp, " ", &cTemp);
+
 					ParentsName = cTemp;
 					ParentsName.pop_back();
+					ParentsName.pop_back();
+					ParentsName.erase(0, 1);
+					continue;
 				}
 				//행렬저장부분일 시 
 				else if (sFirstName == ID_NODE_TM)
 				{
 					D3DXMatrixIdentity(&matWorld);
-
 
 					while (true)
 					{
@@ -188,18 +229,18 @@ void cAseLoader::LoadAse(OUT vector<cGroup*>& vecGroup, IN char * szFolder, IN c
 							sscanf_s(szTemp, "%*s %f %f %f", &x, &y, &z);
 							matWorld.m[nRow][0] = x;
 							matWorld.m[nRow][1] = y;
-							matWorld.m[nRow][2] = z;
-
-							if (ParentsName != "")
-							{
-								matWorld *= *m_mapMatWorld.find(ParentsName)->second;
-							}
-
-							//현재 행렬이 저장되어 있지 않으면 생성
-							if (m_mapMatWorld.find(MyName) == m_mapMatWorld.end())
-								m_mapMatWorld[MyName] = new D3DXMATRIXA16(matWorld);
+							matWorld.m[nRow][2] = z;	
 						}
 					}
+
+					if (ParentsName != "")
+					{
+						matWorld *= *m_mapMatWorld.find(ParentsName)->second;
+					}
+
+					//현재 행렬이 저장되어 있지 않으면 생성
+					if (m_mapMatWorld.find(MyName) == m_mapMatWorld.end())
+						m_mapMatWorld[MyName] = new D3DXMATRIXA16(matWorld);
 				}
 				//메시 저장 부분일 시
 				else if (sFirstName == ID_MESH)
@@ -246,10 +287,14 @@ void cAseLoader::LoadAse(OUT vector<cGroup*>& vecGroup, IN char * szFolder, IN c
 									int nIndex;
 									float x, y, z;
 
-									sscanf_s(szTemp, "%*s %d %f %f %f", &nIndex, &x, &y, &z);
-									vecP[nIndex].x = x;
-									vecP[nIndex].y = y;
-									vecP[nIndex].z = z;
+									sscanf_s(szTemp, "%*s %d %f %f %f", &nIndex, &z, &x, &y);
+
+									D3DXVECTOR3 vTemp;
+									D3DXVec3TransformCoord(&vTemp, &(D3DXVECTOR3(x, y, z)), 
+										m_mapMatWorld.find(MyName)->second);
+		
+									vecP[nIndex] = D3DXVECTOR3(x, y, z);
+									
 								}
 							}
 						}
@@ -282,10 +327,62 @@ void cAseLoader::LoadAse(OUT vector<cGroup*>& vecGroup, IN char * szFolder, IN c
 						//텍스처 버텍스 갯수저장
 						else if (sFirstName == ID_MESH_NUMTVERTEX)
 						{
+							int nMesh_NumTVertex;
+							sscanf_s(szTemp, "%*s %d", &nMesh_NumTVertex);
+							vecT.resize(nMesh_NumTVertex);
 						}
+					
+						//텍스처 버텍스 좌표 리스트
+						else if (sFirstName == ID_MESH_TVERTLIST)
+						{
+							while (true)
+							{
+								fgets(szTemp, BUFFER, fp);
+								sscanf_s(szTemp, "%s", cFirstName, BUFFER);
+								sFirstName = cFirstName;
+								if (sFirstName == "}") break;
+								
+								if (sFirstName == ID_MESH_TVERT)
+								{
+									int nIndex;
+									float u, v;
 
+									sscanf_s(szTemp, "%*s %d %f %f", &nIndex, &u, &v);
+
+									vecT[nIndex].x = u;
+									vecT[nIndex].y = v;
+								}
+							}
+						}
+						
+						//삼각형 텍스쳐 좌표 저장
+						else if (sFirstName == ID_MESH_TFACELIST)
+						{
+							while (true)
+							{
+								fgets(szTemp, BUFFER, fp);
+								sscanf_s(szTemp, "%s", cFirstName, BUFFER);
+								sFirstName = cFirstName;
+								if (sFirstName == "}") break;
+
+								if (sFirstName == ID_MESH_TFACE)
+								{
+									int nIndex;
+									float x, y, z;
+
+									sscanf_s(szTemp, "%*s %d %f %f %f", &nIndex, &x, &y, &z);
+
+									vecPNT[(nIndex * 3)].t = vecT[x];
+									vecPNT[(nIndex * 3) + 1].t = vecT[y];
+									vecPNT[(nIndex * 3) + 2].t = vecT[z];
+								}
+							}
+
+							
+						}
+						
 						//법선벡터 저장 
-						else if (sFirstName == ID_MESH_NUMTVERTEX)
+						else if (sFirstName == ID_MESH_NORMALS)
 						{
 							while (true)
 							{
@@ -309,15 +406,39 @@ void cAseLoader::LoadAse(OUT vector<cGroup*>& vecGroup, IN char * szFolder, IN c
 							}
 						}
 			
+			
 					}
 				}
+
+				//머터리얼 정보
+				else if (sFirstName == ID_MATERIAL_REF)
+				{				
+					sscanf_s(szTemp, "%*s %d", &nMtl);	
+
+				}
+				
+				
 			}
 		}
 		
 		
-		
-		
-		
+		if (!vecPNT.empty())
+		{
+			cGroup* pGroup = new cGroup;
+			pGroup->SetVertex(vecPNT);			
+			if(nMtl != -1) pGroup->SetMtlTex(m_mapMtlTex[nMtl]);
+			vecGroup.push_back(pGroup);
+			vecPNT.clear();
+			vecP.clear();
+			vecT.clear();
+		}
 		
 	}
+
+
+	for each(auto it in m_mapMtlTex)
+	{
+		SAFE_RELEASE(it.second);
+	}
+	m_mapMtlTex.clear();
 }

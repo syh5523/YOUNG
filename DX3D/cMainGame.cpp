@@ -48,13 +48,15 @@ void cMainGame::Setup()
 	cAseLoader loadAse;
 	loadAse.LoadAse(m_vecGroup, "woman", "woman_01_all.ASE");
 
-	/*m_pCubeMan = new cCubeMan;
-	m_pCubeMan->RecieveHexaVertext(&m_pGrid->GetHexagonVertex());
-	m_pCubeMan->GetFloor(m_vecGroup);
-	m_pCubeMan->Setup();*/	
-
+	//m_pCubeMan = new cCubeMan;
+	//m_pCubeMan->RecieveHexaVertext(&m_pGrid->GetHexagonVertex());
+	////m_pCubeMan->GetFloor(m_vecGroup);
+	//m_pCubeMan->Setup();	
+	
 	m_pCamera = new cCamera;
-	//m_pCamera->Setup(&m_pCubeMan->GetPosition());
+	//m_pCamera->Setup(&m_vecGroup[0]->GetVertex()[0].p);
+	m_pCamera->Setup(&D3DXVECTOR3(0,0,0));
+
 
 	Set_Light();
 
@@ -79,7 +81,7 @@ void cMainGame::Render()
 	g_pD3DDevice->BeginScene();
 
 	if (m_pGrid) m_pGrid->Render();
-	//Obj_Render();
+	Obj_Render();
 	//if (m_pCubeMan) m_pCubeMan->Render();
 
 	g_pD3DDevice->EndScene();
@@ -98,11 +100,11 @@ void cMainGame::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 void cMainGame::Obj_Render()
 {
-	D3DXMATRIXA16 matWorld, matS, matR;
+	/*D3DXMATRIXA16 matWorld, matS, matR;
 	D3DXMatrixScaling(&matS, OBJECT_SCAILING, OBJECT_SCAILING, OBJECT_SCAILING);
 	D3DXMatrixRotationX(&matR, -D3DX_PI / 2.0f);
 	matWorld = matS * matR;
-	g_pD3DDevice->SetTransform(D3DTS_WORLD, &matWorld);
+	g_pD3DDevice->SetTransform(D3DTS_WORLD, &matWorld);*/
 
 	for each(auto p in m_vecGroup)
 	{

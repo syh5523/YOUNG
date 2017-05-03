@@ -100,7 +100,7 @@ void cCubeMan::Update()
 	MoveCharacter();
 
 	//¹Ù´Ú Ãæµ¹
-	IntersectTri();
+	//IntersectTri();
 
 
 }
