@@ -287,11 +287,11 @@ void cAseLoader::LoadAse(OUT vector<cGroup*>& vecGroup, IN char * szFolder, IN c
 									int nIndex;
 									float x, y, z;
 
-									sscanf_s(szTemp, "%*s %d %f %f %f", &nIndex, &z, &x, &y);
+									sscanf_s(szTemp, "%*s %d %f %f %f", &nIndex, &x, &y, &z);
 
-									D3DXVECTOR3 vTemp;
+									/*D3DXVECTOR3 vTemp;
 									D3DXVec3TransformCoord(&vTemp, &(D3DXVECTOR3(x, y, z)), 
-										m_mapMatWorld.find(MyName)->second);
+										m_mapMatWorld.find(MyName)->second);*/
 		
 									vecP[nIndex] = D3DXVECTOR3(x, y, z);
 									
@@ -299,7 +299,7 @@ void cAseLoader::LoadAse(OUT vector<cGroup*>& vecGroup, IN char * szFolder, IN c
 							}
 						}
 
-						//»ï°¢Çü ¹öÅØ½º ÀúÀå
+						//»ï°¢Çü ÀÎµ¦½º ÀúÀå
 						else if (sFirstName == ID_MESH_FACE_LIST)
 						{
 							while (true)
@@ -332,7 +332,7 @@ void cAseLoader::LoadAse(OUT vector<cGroup*>& vecGroup, IN char * szFolder, IN c
 							vecT.resize(nMesh_NumTVertex);
 						}
 					
-						//ÅØ½ºÃ³ ¹öÅØ½º ÁÂÇ¥ ¸®½ºÆ®
+						//ÅØ½ºÃ³ ÁÂÇ¥ ¸®½ºÆ®
 						else if (sFirstName == ID_MESH_TVERTLIST)
 						{
 							while (true)
@@ -345,9 +345,9 @@ void cAseLoader::LoadAse(OUT vector<cGroup*>& vecGroup, IN char * szFolder, IN c
 								if (sFirstName == ID_MESH_TVERT)
 								{
 									int nIndex;
-									float u, v;
+									float u, v, uv;
 
-									sscanf_s(szTemp, "%*s %d %f %f", &nIndex, &u, &v);
+									sscanf_s(szTemp, "%*s %d %f %f %f", &nIndex, &u, &uv, &v);
 
 									vecT[nIndex].x = u;
 									vecT[nIndex].y = v;
@@ -355,7 +355,7 @@ void cAseLoader::LoadAse(OUT vector<cGroup*>& vecGroup, IN char * szFolder, IN c
 							}
 						}
 						
-						//»ï°¢Çü ÅØ½ºÃÄ ÁÂÇ¥ ÀúÀå
+						//»ï°¢Çü ÅØ½ºÃÄ ÀÎµ¦½º ÁÂÇ¥ ÀúÀå
 						else if (sFirstName == ID_MESH_TFACELIST)
 						{
 							while (true)
@@ -405,8 +405,7 @@ void cAseLoader::LoadAse(OUT vector<cGroup*>& vecGroup, IN char * szFolder, IN c
 								}
 							}
 						}
-			
-			
+
 					}
 				}
 
@@ -414,10 +413,7 @@ void cAseLoader::LoadAse(OUT vector<cGroup*>& vecGroup, IN char * szFolder, IN c
 				else if (sFirstName == ID_MATERIAL_REF)
 				{				
 					sscanf_s(szTemp, "%*s %d", &nMtl);	
-
-				}
-				
-				
+				}			
 			}
 		}
 		

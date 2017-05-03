@@ -4,7 +4,7 @@
 
 cCamera::cCamera()
 	:m_vEye(0,0,5), m_vLookAt(0,0,0), m_vUp(0,1,0), m_pvTarget(NULL),
-	m_fCameraDistance(5), m_isButtonDown(false),	m_vCamRotAngle(0,0,0)
+	m_fCameraDistance(2), m_isButtonDown(false),	m_vCamRotAngle(0,0,0)
 {
 	m_ptPrevMouse.x = 0;
 	m_ptPrevMouse.y = 0;
@@ -42,7 +42,7 @@ void cCamera::Update()
 
 	matR = matRX * matRY;
 
-	m_vEye = D3DXVECTOR3(0, 5, -m_fCameraDistance);
+	m_vEye = D3DXVECTOR3(0, 1.0f, -m_fCameraDistance);
 	D3DXVec3TransformCoord(&m_vEye, &m_vEye, &matR);
 
 	if (m_pvTarget)
