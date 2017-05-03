@@ -9,4 +9,5 @@ cObjectManager::cObjectManager()
 
 cObjectManager::~cObjectManager()
 {
+
 }

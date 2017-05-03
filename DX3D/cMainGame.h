@@ -30,10 +30,6 @@ private:
 	cGrid*				m_pGrid;
 	cCubeMan*			m_pCubeMan;
 	vector<cGroup*>		m_vecGroup;
-	// >> : 
-	LPDIRECT3DTEXTURE9	 m_pTexture;
-	vector<ST_PT_VERTEX> m_vecVertex;
-	// << : 
 
 public:
 	void WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);

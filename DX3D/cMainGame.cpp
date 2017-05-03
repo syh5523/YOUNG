@@ -9,11 +9,12 @@
 // << :
 #include "cGroup.h"
 #include "cObjLoader.h"
+#include "cAseLoader.h"
 
 cMainGame::cMainGame()
 	: //m_pCubePC(NULL)
-	m_pCubeMan(NULL)
-	, m_pCamera(NULL)
+	//m_pCubeMan(NULL)
+	 m_pCamera(NULL)
 	, m_pGrid(NULL)
 	, m_vecGroup(NULL)
 {
@@ -26,6 +27,11 @@ cMainGame::~cMainGame()
 	SAFE_DELETE(m_pCubeMan);
 	SAFE_DELETE(m_pCamera);
 	SAFE_DELETE(m_pGrid); 
+	for (int i = 0; i < m_vecGroup.size(); ++i) SAFE_DELETE(m_vecGroup[i]);			
+
+
+	g_pObjectManager->Destroy();
+	g_pTextureManager->Destroy();
 
 	g_pDeviceManager->Destroy();
 }
@@ -36,17 +42,19 @@ void cMainGame::Setup()
 	m_pGrid = new cGrid;
 	m_pGrid->Setup();
 
-	cObjLoader loadObj;
-	loadObj.Load(m_vecGroup, "obj", "map_surface.obj");
-	
-	m_pCubeMan = new cCubeMan;
+	//cObjLoader loadObj;
+	//loadObj.Load(m_vecGroup, "obj", "map_surface.obj");
+	//loadObj.Load(m_vecGroup, "obj", "Map.obj");
+	cAseLoader loadAse;
+	loadAse.LoadAse(m_vecGroup, "woman", "woman_01_all.ASE");
+
+	/*m_pCubeMan = new cCubeMan;
 	m_pCubeMan->RecieveHexaVertext(&m_pGrid->GetHexagonVertex());
 	m_pCubeMan->GetFloor(m_vecGroup);
-	m_pCubeMan->Setup();	
+	m_pCubeMan->Setup();*/	
 
 	m_pCamera = new cCamera;
-	m_pCamera->Setup(&m_pCubeMan->GetPosition());
-
+	//m_pCamera->Setup(&m_pCubeMan->GetPosition());
 
 	Set_Light();
 
@@ -54,7 +62,7 @@ void cMainGame::Setup()
 
 void cMainGame::Update()
 {
-	if (m_pCubeMan)	m_pCubeMan->Update();
+	//if (m_pCubeMan)	m_pCubeMan->Update();
 
 	if (m_pCamera) m_pCamera->Update();
 
@@ -71,8 +79,8 @@ void cMainGame::Render()
 	g_pD3DDevice->BeginScene();
 
 	if (m_pGrid) m_pGrid->Render();
-	Obj_Render();
-	if (m_pCubeMan) m_pCubeMan->Render();
+	//Obj_Render();
+	//if (m_pCubeMan) m_pCubeMan->Render();
 
 	g_pD3DDevice->EndScene();
 
@@ -91,7 +99,7 @@ void cMainGame::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 void cMainGame::Obj_Render()
 {
 	D3DXMATRIXA16 matWorld, matS, matR;
-	D3DXMatrixScaling(&matS, 0.01f, 0.01f, 0.01f);
+	D3DXMatrixScaling(&matS, OBJECT_SCAILING, OBJECT_SCAILING, OBJECT_SCAILING);
 	D3DXMatrixRotationX(&matR, -D3DX_PI / 2.0f);
 	matWorld = matS * matR;
 	g_pD3DDevice->SetTransform(D3DTS_WORLD, &matWorld);

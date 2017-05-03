@@ -1,6 +1,8 @@
 #pragma once
 #include "cCharacter.h"
 #define CUVNUMBER 100
+#define POSSIBLEUPHEIGHT 0.25f
+#define EXAMDISTANCE 0.3f
 
 class cCubeNode;
 class cGroup;
@@ -26,7 +28,6 @@ private:
 	//----------------------------------¹Ù´Ú Ãæµ¹--------------------------------------
 	vector<cGroup*>					m_vFloor;
 	float							m_u, m_v, m_dist;
-	int a;
 public:
 	cCubeNode*	m_pRoot;
 

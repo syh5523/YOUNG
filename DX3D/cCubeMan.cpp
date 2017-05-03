@@ -13,7 +13,7 @@ cCubeMan::cCubeMan()
 	: m_pRoot(NULL),
 	m_pTexture(NULL),
 	m_Destination_Index(4), m_Currunt_Index(0), m_via_Index(2),
-	m_u(0), m_v(0), m_dist(0), a(0)
+	m_u(0), m_v(0), m_dist(0)
 {
 
 }
@@ -130,34 +130,71 @@ void cCubeMan::GetFloor(vector<cGroup*> floor)
 
 void cCubeMan::IntersectTri()
 {
-	
-
-	for (int i = 0; i < m_vFloor[0]->GetVertex().size() - 1; i+=3)
+	bool IsFrontDown = false;
+	bool IsBackDown = false;
+	for (int i = 0; i < m_vFloor[0]->GetVertex().size() - 1; i += 3)
 	{
-		D3DXVECTOR3 v0 = m_vFloor[0]->GetVertex()[i].p * 0.01f;
-		D3DXVECTOR3 v1 = m_vFloor[0]->GetVertex()[i + 1].p* 0.01f;
-		D3DXVECTOR3 v2 = m_vFloor[0]->GetVertex()[i + 2].p* 0.01f;
+		D3DXVECTOR3 v0 = m_vFloor[0]->GetVertex()[i].p * OBJECT_SCAILING;
+		D3DXVECTOR3 v1 = m_vFloor[0]->GetVertex()[i + 1].p* OBJECT_SCAILING;
+		D3DXVECTOR3 v2 = m_vFloor[0]->GetVertex()[i + 2].p* OBJECT_SCAILING;
+		D3DXMATRIXA16 matR;
+		D3DXMatrixRotationX(&matR, -D3DX_PI / 2.0f);
+		D3DXVec3TransformCoord(&v0, &v0, &matR);
+		D3DXVec3TransformCoord(&v1, &v1, &matR);
+		D3DXVec3TransformCoord(&v2, &v2, &matR);
 
+		//주변만 검색하기
+		if (D3DXVec3Length(&(m_vPosition - v0)) > 5 &&
+			D3DXVec3Length(&(m_vPosition - v1)) > 5 &&
+			D3DXVec3Length(&(m_vPosition - v2)) > 5) continue;
 
-		if (
-			D3DXIntersectTri(
-				&v0,
-				&v1,
-				&v2,
-				&D3DXVECTOR3(m_vPosition.x, 1000, m_vPosition.z),
-				&D3DXVECTOR3(0, -1, 0),
-				&m_u, &m_v, &m_dist)
-			)
+		//높이가 높은곳에 가게되면 못움직이게(전진)
+		if (D3DXIntersectTri(&v0, &v1, &v2,
+			&D3DXVECTOR3(m_vPosition.x - m_vDirection.x * EXAMDISTANCE, 1000, m_vPosition.z - m_vDirection.z * EXAMDISTANCE),
+			&D3DXVECTOR3(0, -1, 0), &m_u, &m_v, &m_dist))
 		{
-			cout << m_vPosition.x << endl;
+			//전진시 올라 갈수 있는 위치이면 올라감
+			if ((1000 - m_dist) - m_vPosition.y < POSSIBLEUPHEIGHT)
+			{
+				m_vPosition.y = 1000 - m_dist;
+			}
+			//높으면 못올라감
+			else if ((1000 - m_dist) - m_vPosition.y > POSSIBLEUPHEIGHT) SetIsDontMoveS(true);
+
+			//한번이라도 들어오게 되면 서페이스위에 있는것
+			IsFrontDown = true;
 		}
 
-		if(a == 0)cout << v0.x << endl;
+		
+		
+		//높이가 높은곳에 가게되면 못움직이게(후진)
+		if (D3DXIntersectTri(&v0, &v1, &v2,
+			&D3DXVECTOR3(m_vPosition.x + m_vDirection.x * EXAMDISTANCE, 1000, m_vPosition.z + m_vDirection.z * EXAMDISTANCE),
+			&D3DXVECTOR3(0, -1, 0), &m_u, &m_v, &m_dist))
+		{
+			//올라 갈수 있는 위치이면 올라감
+			if ((1000 - m_dist) - m_vPosition.y < POSSIBLEUPHEIGHT)
+			{
+				m_vPosition.y = 1000 - m_dist;
+			}
+			//높이가 낮은곳만 올라갈 수 있음
+			else if ((1000 - m_dist) - m_vPosition.y > POSSIBLEUPHEIGHT) SetIsDontMoveW(true);
 
+		}
+		//한번이라도 들어오게 되면 서페이스위에 있는것
+		IsBackDown = true;
 	}
 	
-	a++;
-
+	//앞쪽이 떨어지는 곳일 때
+	if (!IsFrontDown)
+	{
+		m_vPosition.y = 0;
+	}
+	//뒤쪽이 떨어지는 곳일 때
+	if (!IsBackDown)
+	{
+		m_vPosition.y = 0;
+	}
 }
 
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #define SUNPOSCHANGEVALUE	(0.005f)
+#define SPEEED	(0.15f)
 
 class cCharacter
 {
@@ -18,7 +19,11 @@ protected:
 	bool			m_IsIdle;
 	int				m_IdleCount;
 
-
+	SYNTHESIZE(bool, m_IsDontMoveW, IsDontMoveW);
+	SYNTHESIZE(bool, m_IsDontMoveS, IsDontMoveS);
+	SYNTHESIZE(bool, m_IsJump, IsJump)
+	SYNTHESIZE(bool, m_IsFall, IsFall)
+	SYNTHESIZE(float, m_JumpHeight, JumpHeight)
 public:
 	virtual ~cCharacter();
 
@@ -27,5 +32,7 @@ public:
 	virtual void Render();
 
 	virtual D3DXVECTOR3 & GetPosition();
+
+	void Jump();
 };
 
