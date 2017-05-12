@@ -26,4 +26,6 @@ void cGroup::Render()
 		&m_vecVertex[0],
 		sizeof(ST_PNT_VERTEX));
 
+	//g_pD3DDevice->SetMaterial(NULL);
+	g_pD3DDevice->SetTexture(0, NULL);
 }

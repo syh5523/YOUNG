@@ -1,8 +1,7 @@
 #pragma once
 class cGroup;
 class cMtlTex;
-
-#define BUFFER 1024
+class cFrame;
 
 class cAseLoader
 {
@@ -11,11 +10,44 @@ public:
 	~cAseLoader();
 
 private:
-	map<int, cMtlTex*>	m_mapMtlTex;
-	map<string, D3DXMATRIXA16*> m_mapMatWorld;
+	FILE*				 m_fp;
+	char				 m_szToken[1024];
+	vector<cMtlTex*>	 m_vecMtlTex;
+	map<string, cFrame*> m_mapFrame;
+
+	DWORD				m_dwFirstFrame;
+	DWORD				m_dwLastFrame;
+	DWORD				m_dwFrameSpeed;
+	DWORD				m_dwTicksPerFrame;
 
 public:
 
-	void LoadAse(OUT vector<cGroup*>& vecGroup, IN char * szFolder, IN char * szFile);
+	cFrame* LoadAse(IN char * szFullPath);
+private:
+	char* GetToken();
+	int	  GetInteger();
+	float GetFloat();
+	bool IsWhite(IN char c);
+	bool IsEqual(IN char* str1, IN char* str2);
+	void SkipBlock();
+	void ProcessMATERIAL_LIST();
+	void ProcessMATERIAL(OUT cMtlTex* pMtlTex);
+	void ProcessMAP_DIFFUSE(OUT cMtlTex* pMtlTex);
+	cFrame* ProcessGEOMOBJECT();
+	void ProcessMESH(OUT cFrame* pFrame);
+	void ProcessMESH_VERTEX_LIST(OUT vector<D3DXVECTOR3> &vecV);
+	void ProcessMESH_FACE_LIST(OUT vector<ST_PNT_VERTEX>& vecVertex, IN vector<D3DXVECTOR3> & vecV);
+	void ProcessMESH_TVERTLIST(OUT vector<D3DXVECTOR2>& vecVT);
+	void ProcessMESH_TFACELIST(OUT vector<ST_PNT_VERTEX>& vecVertex, IN vector<D3DXVECTOR2>& vecVT);
+	void ProcessMESH_NORMALS(OUT vector<ST_PNT_VERTEX>& vecVertex);
+	void ProcessNODE_TM(OUT cFrame* pFrame);
+
+	void ProcessScene();
+	void Set_SceneFrame(OUT cFrame* pRoot);
+
+	void ProcessTM_ANIMATION(OUT cFrame* pFrame);
+	void ProcessCONTROL_POS_TRACK(OUT cFrame* pFrame);
+	void ProcessCONTROL_ROT_TRACK(OUT cFrame* pFrame);
+
 };
 

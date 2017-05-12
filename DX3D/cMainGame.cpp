@@ -1,62 +1,41 @@
 #include "stdafx.h"
 #include "cMainGame.h"
+#include "cDeviceManager.h"		/// << : 
 
-// >> :
-#include "cCubePC.h"
 #include "cCamera.h"
 #include "cGrid.h"
-#include "cCubeMan.h"
-// << :
-#include "cGroup.h"
-#include "cObjLoader.h"
-#include "cAseLoader.h"
+#include "cAseCharacter.h"
+
 
 cMainGame::cMainGame()
-	: //m_pCubePC(NULL)
-	//m_pCubeMan(NULL)
-	 m_pCamera(NULL)
+	: m_pCamera(NULL)
 	, m_pGrid(NULL)
-	, m_vecGroup(NULL)
+	, m_pAseCharacter(NULL)
 {
 }
 
 
 cMainGame::~cMainGame()
 {
-	//SAFE_DELETE(m_pCubePC); 
-	SAFE_DELETE(m_pCubeMan);
 	SAFE_DELETE(m_pCamera);
-	SAFE_DELETE(m_pGrid); 
-	for (int i = 0; i < m_vecGroup.size(); ++i) SAFE_DELETE(m_vecGroup[i]);			
-
+	SAFE_DELETE(m_pGrid);
+	SAFE_DELETE(m_pAseCharacter);
 
 	g_pObjectManager->Destroy();
 	g_pTextureManager->Destroy();
-
 	g_pDeviceManager->Destroy();
 }
 
-// >> : 
 void cMainGame::Setup()
 {
+	m_pAseCharacter = new cAseCharacter;
+	m_pAseCharacter->Setup();
+
+	m_pCamera = new cCamera;
+	m_pCamera->Setup(NULL);
+
 	m_pGrid = new cGrid;
 	m_pGrid->Setup();
-
-	//cObjLoader loadObj;
-	//loadObj.Load(m_vecGroup, "obj", "map_surface.obj");
-	//loadObj.Load(m_vecGroup, "obj", "Map.obj");
-	cAseLoader loadAse;
-	loadAse.LoadAse(m_vecGroup, "woman", "woman_01_all.ASE");
-
-	//m_pCubeMan = new cCubeMan;
-	//m_pCubeMan->RecieveHexaVertext(&m_pGrid->GetHexagonVertex());
-	////m_pCubeMan->GetFloor(m_vecGroup);
-	//m_pCubeMan->Setup();	
-	
-	m_pCamera = new cCamera;
-	m_pCamera->Setup(&m_vecGroup[0]->GetVertex()[0].p);
-	//m_pCamera->Setup(&D3DXVECTOR3(0,0,0));
-
 
 	Set_Light();
 
@@ -64,10 +43,8 @@ void cMainGame::Setup()
 
 void cMainGame::Update()
 {
-	//if (m_pCubeMan)	m_pCubeMan->Update();
-
 	if (m_pCamera) m_pCamera->Update();
-
+	if (m_pAseCharacter) m_pAseCharacter->Update();
 }
 
 void cMainGame::Render()
@@ -80,35 +57,20 @@ void cMainGame::Render()
 
 	g_pD3DDevice->BeginScene();
 
+
 	if (m_pGrid) m_pGrid->Render();
-	Obj_Render();
-	//if (m_pCubeMan) m_pCubeMan->Render();
+	if (m_pAseCharacter) m_pAseCharacter->Render();
 
 	g_pD3DDevice->EndScene();
 
 	g_pD3DDevice->Present(NULL, NULL, NULL, NULL);
 }
-// << : 
 
 void cMainGame::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	if (m_pCamera)
 	{
 		m_pCamera->WndProc(hwnd, message, wParam, lParam);
-	}
-}
-
-void cMainGame::Obj_Render()
-{
-	/*D3DXMATRIXA16 matWorld, matS, matR;
-	D3DXMatrixScaling(&matS, OBJECT_SCAILING, OBJECT_SCAILING, OBJECT_SCAILING);
-	D3DXMatrixRotationX(&matR, -D3DX_PI / 2.0f);
-	matWorld = matS * matR;
-	g_pD3DDevice->SetTransform(D3DTS_WORLD, &matWorld);*/
-
-	for each(auto p in m_vecGroup)
-	{
-		p->Render();
 	}
 }
 
