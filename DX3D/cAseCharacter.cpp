@@ -49,7 +49,6 @@ void cAseCharacter::Update()
 
 void cAseCharacter::Render()
 {
-	cAseCharacterMove::Render();
 	if (m_IsMove)	m_pRunFrame->Render();	
 	else m_pStandingFrame->Render();
 	

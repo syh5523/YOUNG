@@ -7,6 +7,7 @@
 #include "cAseCharacter.h"
 #include "cMtltex.h"
 #include "cObjLoader.h"
+#include "cGroup.h"
 
 
 cMainGame::cMainGame()
@@ -27,6 +28,10 @@ cMainGame::~cMainGame()
 
 	SAFE_RELEASE(m_pFont);
 
+	for (int i = 0; i < m_vecGroup.size(); ++i)
+	{
+		SAFE_DELETE(m_vecGroup[i]);
+	}
 	for (int i = 0; i < m_vpMtlTex.size(); ++i)
 	{
 		SAFE_DELETE(m_vpMtlTex[i]);
@@ -53,13 +58,16 @@ void cMainGame::Setup()
 	cObjLoader Load;
 	m_lpMesh = Load.LoadMesh(m_vpMtlTex, "obj", "Map.obj");
 
+	cObjLoader loadObj;
+	loadObj.Load(m_vecGroup, "obj", "Map.obj");
+
 	cout << m_lpMesh->GetNumFaces() << endl;
 	cout << m_lpMesh->GetNumVertices() << endl;
 
 
 	Set_Light();
-	//Create_Font();
-	//tic = GetTickCount();
+	Create_Font();
+	tic = GetTickCount();
 }
 
 void cMainGame::Update()
@@ -67,7 +75,7 @@ void cMainGame::Update()
 	if (m_pCamera) m_pCamera->Update();
 	if (m_pAseCharacter) m_pAseCharacter->Update();
 
-	//Frame();
+	Frame();
 }
 
 void cMainGame::Render()
@@ -84,7 +92,7 @@ void cMainGame::Render()
 
 	if (m_pGrid) m_pGrid->Render();
 	if (m_pAseCharacter) m_pAseCharacter->Render();
-	//Text_Render();
+	Text_Render();
 
 	D3DXMATRIXA16 matWorld, matS, matR;
 	D3DXMatrixScaling(&matS, 0.01f, 0.01f, 0.01f);
@@ -93,14 +101,29 @@ void cMainGame::Render()
 	g_pD3DDevice->SetTransform(D3DTS_WORLD, &matWorld);
 
 	g_pD3DDevice->SetFVF(ST_PNT_VERTEX::FVF);
+	//ÀÏ¹ÝÀû ·»´õ
 
-	for (int i = 0; i < 6; ++i)
+	for (int i = 0; i < 200; ++i)
 	{
-		g_pD3DDevice->SetTexture(0, m_vpMtlTex[i]->GetTexture());
-		g_pD3DDevice->SetMaterial(&m_vpMtlTex[i]->GetMaterial());
-
-		m_lpMesh->DrawSubset(i);
+		for each(auto p in m_vecGroup)
+		{
+			p->Render();
+		}
 	}
+
+	/*for (int i = 0; i < 200; ++i)
+	{
+		for (int i = 0; i < 6; ++i)
+		{
+			g_pD3DDevice->SetTexture(0, m_vpMtlTex[i]->GetTexture());
+			g_pD3DDevice->SetMaterial(&m_vpMtlTex[i]->GetMaterial());
+
+			m_lpMesh->DrawSubset(i);
+		}
+	}*/
+
+
+
 	g_pD3DDevice->SetTexture(0, NULL);
 
 	///-----------------------------------------------------------------------EndScene

@@ -78,7 +78,7 @@ void cAseCharacterMove::Update()
 
 	m_matWorld = matR * matT;
 }
-
-void cAseCharacterMove::Render()
+D3DXVECTOR3 & cAseCharacterMove::GetPosition()
 {
+	return m_vPosition;
 }

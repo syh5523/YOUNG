@@ -4,6 +4,7 @@ class cCamera;
 class cGrid;
 class cAseCharacter;
 class cMtlTex;
+class cGroup;
 
 class cMainGame
 {
@@ -24,6 +25,8 @@ private:
 	vector<cMtlTex*>		m_vpMtlTex;
 
 	LPD3DXMESH m_lpMesh;
+
+	vector<cGroup*>			m_vecGroup;
 public:
 	void Setup();
 	void Update();

@@ -189,9 +189,6 @@ void cObjLoader::LoadMtlLib(char * szFolder, char * szFile)
 
 			LPDIRECT3DTEXTURE9 pTexture = g_pTextureManager->GetTexture(sFullPath);
 			m_mapMtlTex[sMtlName]->SetTexture(pTexture);
-
-			m_mapMtlTex[sMtlName]->SetSubset(nSubset);
-			nSubset++;
 		}
 	}
 
@@ -259,7 +256,6 @@ LPD3DXMESH cObjLoader::LoadMesh(OUT vector<cMtlTex*>& vecMtlTex, IN char * szFol
 	vector<D3DXVECTOR3> vecVN;
 	vector<DWORD> vecSubset;
 	vector<ST_PNT_VERTEX> vecVertex;
-	
 	string sFullPath(szFolder);
 	sFullPath += (std::string("/") + std::string(szFile));
 
@@ -267,7 +263,7 @@ LPD3DXMESH cObjLoader::LoadMesh(OUT vector<cMtlTex*>& vecMtlTex, IN char * szFol
 	fopen_s(&fp, sFullPath.c_str(), "r");
 
 	string sMtlName;
-
+	int size = 0;
 	while (true)
 	{
 		if (feof(fp)) break;
@@ -286,10 +282,10 @@ LPD3DXMESH cObjLoader::LoadMesh(OUT vector<cMtlTex*>& vecMtlTex, IN char * szFol
 
 			for each(auto it in m_mapMtlTex)
 			{
-				cMtlTex* mtltex = new cMtlTex;
-				mtltex->SetMaterial(it.second->GetMaterial());
-				mtltex->SetTexture(it.second->GetTexture());
-				vecMtlTex.push_back(mtltex);
+				cMtlTex* pmtl = new cMtlTex;
+				pmtl->SetMaterial(it.second->GetMaterial());
+				pmtl->SetTexture(it.second->GetTexture());
+				vecMtlTex.push_back(pmtl);
 			}
 		}
 		else if (szTemp[0] == 'g')
@@ -304,7 +300,22 @@ LPD3DXMESH cObjLoader::LoadMesh(OUT vector<cMtlTex*>& vecMtlTex, IN char * szFol
 				vecVertex.clear();*/
 			
 				//vecMtlTex.push_back(m_mapMtlTex[sMtlName]);
-				
+				int attributeNum = -1;
+				int mapCountNum = 0;
+				for each (auto it in m_mapMtlTex)
+				{
+					if (it.first == sMtlName)
+					{
+						attributeNum = mapCountNum;
+						break;
+					}
+					else mapCountNum++;
+				}
+				for (int i = 0; i < size; ++i)
+				{
+					vecSubset.push_back(attributeNum);
+				}				
+				size = 0;				
 			}
 		}
 		
@@ -363,8 +374,8 @@ LPD3DXMESH cObjLoader::LoadMesh(OUT vector<cMtlTex*>& vecMtlTex, IN char * szFol
 				v.n = vecVN[nIndex[i][2] - 1];
 				vecVertex.push_back(v);
 			}
-
-			vecSubset.push_back(m_mapMtlTex[sMtlName]->GetSubset());
+			size++;
+			
 		}
 	}
 
