@@ -251,19 +251,22 @@ void cObjLoader::LoadSurface(OUT std::vector<D3DXVECTOR3>& vecSurface, IN char *
 
 LPD3DXMESH cObjLoader::LoadMesh(OUT vector<cMtlTex*>& vecMtlTex, IN char * szFolder, IN char * szFile)
 {
-	vector<D3DXVECTOR3> vecV;					//버텍스 
-	vector<D3DXVECTOR2> vecVT;					//텍스쳐
-	vector<D3DXVECTOR3> vecVN;
-	vector<DWORD> vecSubset;
-	vector<ST_PNT_VERTEX> vecVertex;
-	string sFullPath(szFolder);
+	std::vector<D3DXVECTOR3> vecV;
+	std::vector<D3DXVECTOR2> vecVT;
+	std::vector<D3DXVECTOR3> vecVN;
+	std::vector<ST_PNT_VERTEX> vecVertex;
+
+	std::vector<ST_PNT_VERTEX> vecTotalVertex;
+	std::vector<DWORD> vecAttribute;
+
+	std::string sFullPath(szFolder);
 	sFullPath += (std::string("/") + std::string(szFile));
 
-	FILE * fp;
+	FILE *fp;
 	fopen_s(&fp, sFullPath.c_str(), "r");
 
-	string sMtlName;
-	int size = 0;
+	std::string sMtlName;
+
 	while (true)
 	{
 		if (feof(fp)) break;
@@ -282,24 +285,21 @@ LPD3DXMESH cObjLoader::LoadMesh(OUT vector<cMtlTex*>& vecMtlTex, IN char * szFol
 
 			for each(auto it in m_mapMtlTex)
 			{
-				cMtlTex* pmtl = new cMtlTex;
-				pmtl->SetMaterial(it.second->GetMaterial());
-				pmtl->SetTexture(it.second->GetTexture());
-				vecMtlTex.push_back(pmtl);
+				cMtlTex* mtltex = new cMtlTex;
+				mtltex->SetMaterial(it.second->GetMaterial());
+				mtltex->SetTexture(it.second->GetTexture());
+				vecMtlTex.push_back(mtltex);
 			}
 		}
 		else if (szTemp[0] == 'g')
 		{
 			if (!vecVertex.empty())
 			{
-				/*cGroup* pGroup = new cGroup;
-				pGroup->SetVertex(vecVertex);
-				pGroup->SetMtlTex(m_mapMtlTex[sMtlName]);
-				pGroup->SetSubset(m_mapMtlTex[sMtlName]->GetSubset());
-				vecGroup.push_back(pGroup);
-				vecVertex.clear();*/
-			
-				//vecMtlTex.push_back(m_mapMtlTex[sMtlName]);
+				for (int i = 0; i < vecVertex.size(); ++i)
+				{
+					vecTotalVertex.push_back(vecVertex[i]);
+				}
+
 				int attributeNum = -1;
 				int mapCountNum = 0;
 				for each (auto it in m_mapMtlTex)
@@ -311,36 +311,29 @@ LPD3DXMESH cObjLoader::LoadMesh(OUT vector<cMtlTex*>& vecMtlTex, IN char * szFol
 					}
 					else mapCountNum++;
 				}
-				for (int i = 0; i < size; ++i)
+
+				for (int i = 0; i < vecVertex.size() / 3; i++)
 				{
-					vecSubset.push_back(attributeNum);
-				}				
-				size = 0;				
+					vecAttribute.push_back(attributeNum);
+				}
+
+				vecVertex.clear();
 			}
 		}
-		
 		else if (szTemp[0] == 'v')
 		{
-
-			//버텍스 
 			if (szTemp[1] == ' ')
 			{
 				float x, y, z;
 				sscanf_s(szTemp, "%*s %f %f %f", &x, &y, &z);
-
 				vecV.push_back(D3DXVECTOR3(x, y, z));
-			
 			}
-
-			//텍스쳐
 			else if (szTemp[1] == 't')
 			{
 				float u, v;
 				sscanf_s(szTemp, "%*s %f %f %*f", &u, &v);
 				vecVT.push_back(D3DXVECTOR2(u, v));
 			}
-
-			//노말
 			else if (szTemp[1] == 'n')
 			{
 				float x, y, z;
@@ -348,25 +341,22 @@ LPD3DXMESH cObjLoader::LoadMesh(OUT vector<cMtlTex*>& vecMtlTex, IN char * szFol
 				vecVN.push_back(D3DXVECTOR3(x, y, z));
 			}
 		}
-
-		//머터리얼 이름
 		else if (szTemp[0] == 'u')
 		{
 			char szMtlName[1024];
 			sscanf_s(szTemp, "%*s %s", szMtlName, 1024);
 			sMtlName = std::string(szMtlName);
 		}
-
-		//인덱스
 		else if (szTemp[0] == 'f')
 		{
 			int nIndex[3][3];
 			sscanf_s(szTemp, "%*s %d/%d/%d %d/%d/%d %d/%d/%d",
 				&nIndex[0][0], &nIndex[0][1], &nIndex[0][2],
 				&nIndex[1][0], &nIndex[1][1], &nIndex[1][2],
-				&nIndex[2][0], &nIndex[2][1], &nIndex[2][2]);
+				&nIndex[2][0], &nIndex[2][1], &nIndex[2][2]
+			);
 
-			for (int i = 0; i < 3; ++i)
+			for (int i = 0; i < 3; i++)
 			{
 				ST_PNT_VERTEX v;
 				v.p = vecV[nIndex[i][0] - 1];
@@ -374,62 +364,49 @@ LPD3DXMESH cObjLoader::LoadMesh(OUT vector<cMtlTex*>& vecMtlTex, IN char * szFol
 				v.n = vecVN[nIndex[i][2] - 1];
 				vecVertex.push_back(v);
 			}
-			size++;
-			
 		}
 	}
 
 	fclose(fp);
 
 
-	LPD3DXMESH pMesh;
-
-	D3DXCreateMeshFVF(vecVertex.size() / 3, vecVertex.size(), D3DXMESH_MANAGED, ST_PNT_VERTEX::FVF,
-	g_pD3DDevice, &pMesh);
-
-	//버텍스 저장
-	ST_PNT_VERTEX* meshV = 0;
-	pMesh->LockVertexBuffer(0, (LPVOID*)&meshV);	
-	memcpy(meshV, &vecVertex[0], vecVertex.size() * sizeof(ST_PNT_VERTEX));
-	pMesh->UnlockVertexBuffer();
-
-	//인덱스 저장
-	WORD* Index = 0;
-	pMesh->LockIndexBuffer(0, (LPVOID*)&Index);
-	
-	for (int i = 0; i < vecVertex.size(); ++i)
+	//메쉬 구성
+	LPD3DXMESH pMesh = NULL;
 	{
-		Index[i] = i;
+		D3DXCreateMeshFVF(vecTotalVertex.size() / 3, vecTotalVertex.size(), D3DXMESH_MANAGED, ST_PNT_VERTEX::FVF, g_pD3DDevice, &pMesh);
+
+		ST_PNT_VERTEX* vertex;
+		pMesh->LockVertexBuffer(0, (void**)&vertex);
+		memcpy(vertex, &vecTotalVertex[0], vecTotalVertex.size() * sizeof(ST_PNT_VERTEX));
+		pMesh->UnlockVertexBuffer();
+
+		WORD* index = 0;
+		pMesh->LockIndexBuffer(0, (void**)&index);
+		for (int i = 0; i < vecTotalVertex.size(); ++i)
+		{
+			index[i] = i;
+		}
+		pMesh->UnlockIndexBuffer();
+
+		DWORD* attributeBuffer = 0;
+		pMesh->LockAttributeBuffer(0, &attributeBuffer);
+		memcpy(attributeBuffer, &vecAttribute[0], vecAttribute.size() * sizeof(DWORD));
+		pMesh->UnlockAttributeBuffer();
+
+		//optimize
+		std::vector<DWORD> adjacencyBuffer(pMesh->GetNumFaces() * 3);
+		pMesh->GenerateAdjacency(0.0f, &adjacencyBuffer[0]);
+
+		pMesh->OptimizeInplace(
+			D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_COMPACT | D3DXMESHOPT_VERTEXCACHE,
+			&adjacencyBuffer[0], 0, 0, 0);
 	}
-	
-	pMesh->UnlockIndexBuffer();
-
-	//어트리뷰트 저장
-	DWORD* attribute = 0;
-
-	pMesh->LockAttributeBuffer(0, &attribute);
-	memcpy(attribute, &vecSubset[0], vecSubset.size() * sizeof(DWORD));
-	pMesh->UnlockAttributeBuffer();
-
-
-	vector<DWORD> adjacencyBuffer(pMesh->GetNumFaces() * 3);
-	pMesh->GenerateAdjacency(0.0f, &adjacencyBuffer[0]);
-
-	pMesh->OptimizeInplace(	
-			D3DXMESHOPT_ATTRSORT |
-			D3DXMESHOPT_COMPACT |
-			D3DXMESHOPT_VERTEXCACHE,
-			&adjacencyBuffer[0],
-			0, 0, 0);
-
-
 
 	for each(auto it in m_mapMtlTex)
 	{
 		SAFE_RELEASE(it.second);
 	}
 	m_mapMtlTex.clear();
-
 
 	return pMesh;
 }

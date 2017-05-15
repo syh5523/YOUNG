@@ -18,8 +18,8 @@ private:
 	cGrid*					m_pGrid;
 
 	LPD3DXFONT				m_pFont;
-	DWORD					tic, frame;
-	DWORD					curFrame;
+	DWORD					tic, tic1, frame, frame1;
+	DWORD					curFrame, curFrame1;
 
 	//----
 	vector<cMtlTex*>		m_vpMtlTex;

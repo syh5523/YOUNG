@@ -14,7 +14,7 @@ cMainGame::cMainGame()
 	: m_pCamera(NULL)
 	, m_pGrid(NULL)
 	, m_pAseCharacter(NULL)
-	, tic(0), frame(0), curFrame(0)
+	, tic(0), tic1(0), frame(0), frame1(0),  curFrame(0), curFrame1(0)
 	, m_lpMesh(NULL)
 {
 }
@@ -64,10 +64,10 @@ void cMainGame::Setup()
 	cout << m_lpMesh->GetNumFaces() << endl;
 	cout << m_lpMesh->GetNumVertices() << endl;
 
-
 	Set_Light();
 	Create_Font();
 	tic = GetTickCount();
+	tic1 = GetTickCount();
 }
 
 void cMainGame::Update()
@@ -101,17 +101,27 @@ void cMainGame::Render()
 	g_pD3DDevice->SetTransform(D3DTS_WORLD, &matWorld);
 
 	g_pD3DDevice->SetFVF(ST_PNT_VERTEX::FVF);
-	//ÀÏ¹ÝÀû ·»´õ
 
-	for (int i = 0; i < 200; ++i)
+	
+	DWORD time1, time2, time3, time4;
+
+	time1 = GetTickCount();
+
+	for (int i = 0; i < 500; ++i)
 	{
 		for each(auto p in m_vecGroup)
 		{
 			p->Render();
 		}
+
 	}
 
-	/*for (int i = 0; i < 200; ++i)
+	time2 = GetTickCount();
+	curFrame = time2 - time1;
+
+	time3 = GetTickCount();
+
+	for (int i = 0; i < 500; ++i)
 	{
 		for (int i = 0; i < 6; ++i)
 		{
@@ -120,7 +130,15 @@ void cMainGame::Render()
 
 			m_lpMesh->DrawSubset(i);
 		}
-	}*/
+
+
+		//frame1++;
+		
+	}
+
+	time4 = GetTickCount();
+	curFrame1 = time4 - time3;
+
 
 
 
@@ -211,9 +229,12 @@ void cMainGame::Create_Font()
 void cMainGame::Text_Render()
 {
 	{
-		string str;
+		string str, str1;
 		str = to_string(curFrame);
-		string sText(str);
+		str1 = to_string(curFrame1);
+
+
+		string sText(str +"  "+ str1);
 		RECT rc;
 		SetRect(&rc, 100, 100, 101, 100);
 		m_pFont->DrawTextA(NULL, sText.c_str(), sText.length(), &rc, DT_LEFT | DT_TOP | DT_NOCLIP,
@@ -240,14 +261,19 @@ void cMainGame::Text_Render()
 }
 void cMainGame::Frame()
 {
-	frame++;
-
-	if (tic + 1000 < GetTickCount())
+	/*if (tic + 100 < GetTickCount())
 	{
 		curFrame = frame;
 		tic = GetTickCount();
 		frame = 0;
 	}
+	
+	if (tic1 + 100 < GetTickCount())
+	{
+		curFrame1 = frame1;
+		tic1 = GetTickCount();
+		frame1 = 0;
+	}*/
 }
 
 
