@@ -11,7 +11,7 @@ public:
 
 private:
 	std::map<string, cMtlTex*>	m_mapMtlTex;
-	LPD3DXMESH m_lpMesh;
+
 public:
 
 	void Load(OUT std::vector<cGroup*>& vecGroup, IN char * szFolder, IN char * szFile);

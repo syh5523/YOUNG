@@ -4,14 +4,12 @@
 #include "cMtlTex.h"
 
 cObjLoader::cObjLoader()
-	:m_lpMesh(NULL)
 {
 }
 
 
 cObjLoader::~cObjLoader()
 {
-	SAFE_RELEASE(m_lpMesh);
 }
 void cObjLoader::Load(OUT std::vector<cGroup*>& vecGroup, IN char * szFolder, IN char * szFile)
 {
@@ -373,44 +371,40 @@ LPD3DXMESH cObjLoader::LoadMesh(OUT vector<cMtlTex*>& vecMtlTex, IN char * szFol
 	fclose(fp);
 
 
-	
+	LPD3DXMESH pMesh;
+
 	D3DXCreateMeshFVF(vecVertex.size() / 3, vecVertex.size(), D3DXMESH_MANAGED, ST_PNT_VERTEX::FVF,
-	g_pD3DDevice, &m_lpMesh);
+	g_pD3DDevice, &pMesh);
 
 	//버텍스 저장
 	ST_PNT_VERTEX* meshV = 0;
-	m_lpMesh->LockVertexBuffer(0, (LPVOID*)&meshV);	
+	pMesh->LockVertexBuffer(0, (LPVOID*)&meshV);	
 	memcpy(meshV, &vecVertex[0], vecVertex.size() * sizeof(ST_PNT_VERTEX));
-	m_lpMesh->UnlockVertexBuffer();
+	pMesh->UnlockVertexBuffer();
 
 	//인덱스 저장
 	WORD* Index = 0;
-	m_lpMesh->LockIndexBuffer(0, (LPVOID*)&Index);
+	pMesh->LockIndexBuffer(0, (LPVOID*)&Index);
 	
 	for (int i = 0; i < vecVertex.size(); ++i)
 	{
 		Index[i] = i;
 	}
 	
-	m_lpMesh->UnlockIndexBuffer();
+	pMesh->UnlockIndexBuffer();
 
 	//어트리뷰트 저장
 	DWORD* attribute = 0;
 
-	m_lpMesh->LockAttributeBuffer(0, &attribute);
-	
-	for (int i = 0; i < vecSubset.size(); ++i)
-	{
-		attribute[i] = vecSubset[i];
-	}
-
-	m_lpMesh->UnlockAttributeBuffer();
+	pMesh->LockAttributeBuffer(0, &attribute);
+	memcpy(attribute, &vecSubset[0], vecSubset.size() * sizeof(DWORD));
+	pMesh->UnlockAttributeBuffer();
 
 
-	vector<DWORD> adjacencyBuffer(m_lpMesh->GetNumFaces() * 3);
-	m_lpMesh->GenerateAdjacency(0.0f, &adjacencyBuffer[0]);
+	vector<DWORD> adjacencyBuffer(pMesh->GetNumFaces() * 3);
+	pMesh->GenerateAdjacency(0.0f, &adjacencyBuffer[0]);
 
-	m_lpMesh->OptimizeInplace(	
+	pMesh->OptimizeInplace(	
 			D3DXMESHOPT_ATTRSORT |
 			D3DXMESHOPT_COMPACT |
 			D3DXMESHOPT_VERTEXCACHE,
@@ -426,5 +420,5 @@ LPD3DXMESH cObjLoader::LoadMesh(OUT vector<cMtlTex*>& vecMtlTex, IN char * szFol
 	m_mapMtlTex.clear();
 
 
-	return m_lpMesh;
+	return pMesh;
 }
