@@ -3,6 +3,7 @@
 class cCamera;
 class cGrid;
 class cAseCharacter;
+class cMtlTex;
 
 class cMainGame
 {
@@ -19,7 +20,10 @@ private:
 	DWORD					tic, frame;
 	DWORD					curFrame;
 
-	bool		m_isrender;
+	//----
+	vector<cMtlTex*>		m_vpMtlTex;
+
+	LPD3DXMESH m_lpMesh;
 public:
 	void Setup();
 	void Update();
@@ -32,5 +36,7 @@ public:
 	void Text_Render();
 
 	void Frame();
+
+
 };
 

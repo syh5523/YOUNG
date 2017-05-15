@@ -28,6 +28,7 @@
 #include <map>
 #include <list>
 #include <math.h>
+#include <fstream>
 using namespace std;
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console") 
 #include <iostream>

@@ -5,6 +5,8 @@
 #include "cCamera.h"
 #include "cGrid.h"
 #include "cAseCharacter.h"
+#include "cMtltex.h"
+#include "cObjLoader.h"
 
 
 cMainGame::cMainGame()
@@ -12,6 +14,7 @@ cMainGame::cMainGame()
 	, m_pGrid(NULL)
 	, m_pAseCharacter(NULL)
 	, tic(0), frame(0), curFrame(0)
+	, m_lpMesh(NULL)
 {
 }
 
@@ -23,6 +26,13 @@ cMainGame::~cMainGame()
 	SAFE_DELETE(m_pAseCharacter);
 
 	SAFE_RELEASE(m_pFont);
+
+	for (int i = 0; i < m_vpMtlTex.size(); ++i)
+	{
+		SAFE_DELETE(m_vpMtlTex[i]);
+	}
+
+	SAFE_RELEASE(m_lpMesh);
 
 	g_pObjectManager->Destroy();
 	g_pTextureManager->Destroy();
@@ -40,9 +50,15 @@ void cMainGame::Setup()
 	m_pGrid = new cGrid;
 	m_pGrid->Setup();
 
-	Set_Light();
-	Create_Font();
+	cObjLoader Load;
+	m_lpMesh = Load.LoadMesh(m_vpMtlTex, "obj", "Map.obj");
 
+	cout << m_lpMesh->GetNumFaces() << endl;
+	cout << m_lpMesh->GetNumVertices() << endl;
+
+
+	Set_Light();
+	//Create_Font();
 	//tic = GetTickCount();
 }
 
@@ -63,14 +79,38 @@ void cMainGame::Render()
 		1.0f, 0);
 
 	g_pD3DDevice->BeginScene();
+	///-----------------------------------------------------------------------BeginScene
+
 
 	if (m_pGrid) m_pGrid->Render();
 	if (m_pAseCharacter) m_pAseCharacter->Render();
-	Text_Render();
+	//Text_Render();
 
+	D3DXMATRIXA16 matWorld, matS, matR;
+	D3DXMatrixScaling(&matS, 0.01f, 0.01f, 0.01f);
+	D3DXMatrixRotationX(&matR, -D3DX_PI / 2.0f);
+	matWorld = matS * matR;
+	g_pD3DDevice->SetTransform(D3DTS_WORLD, &matWorld);
+
+	g_pD3DDevice->SetFVF(ST_PNT_VERTEX::FVF);
+
+	for (int i = 0; i < 6; ++i)
+	{
+		g_pD3DDevice->SetTexture(0, m_vpMtlTex[i]->GetTexture());
+		g_pD3DDevice->SetMaterial(&m_vpMtlTex[i]->GetMaterial());
+
+		m_lpMesh->DrawSubset(i);
+	}
+	g_pD3DDevice->SetTexture(0, NULL);
+
+	///-----------------------------------------------------------------------EndScene
 	g_pD3DDevice->EndScene();
 
 	g_pD3DDevice->Present(NULL, NULL, NULL, NULL);
+
+
+
+	
 }
 
 void cMainGame::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -186,4 +226,7 @@ void cMainGame::Frame()
 		frame = 0;
 	}
 }
-//<<
+
+
+
+

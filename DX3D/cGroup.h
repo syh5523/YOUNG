@@ -11,7 +11,8 @@ public:
 private:
 	SYNTHESIZE_PASS_BY_REF(std::vector<ST_PNT_VERTEX>, m_vecVertex, Vertex)
 	SYNTHESIZE_ADD_REF(cMtlTex*, m_pMtlTex, MtlTex)
-	//SYNTHESIZE(D3DXMATRIXA16, m_matWorld, matWorld)
+	SYNTHESIZE(DWORD, m_nSubset, Subset)
+
 public:
 
 	void Render();
