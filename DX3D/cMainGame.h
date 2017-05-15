@@ -15,6 +15,11 @@ private:
 	cCamera*				m_pCamera;
 	cGrid*					m_pGrid;
 
+	LPD3DXFONT				m_pFont;
+	DWORD					tic, frame;
+	DWORD					curFrame;
+
+	bool		m_isrender;
 public:
 	void Setup();
 	void Update();
@@ -23,6 +28,9 @@ public:
 	void WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 	void Set_Light();
 
+	void Create_Font();
+	void Text_Render();
 
+	void Frame();
 };
 
