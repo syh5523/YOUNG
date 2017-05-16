@@ -6,6 +6,7 @@ class cAseCharacter;
 class cMtlTex;
 class cGroup;
 
+
 class cMainGame
 {
 public:
@@ -18,15 +19,13 @@ private:
 	cGrid*					m_pGrid;
 
 	LPD3DXFONT				m_pFont;
-	DWORD					tic, tic1, frame, frame1;
 	DWORD					curFrame, curFrame1;
 
 	//----
 	vector<cMtlTex*>		m_vpMtlTex;
-
-	LPD3DXMESH m_lpMesh;
-
+	LPD3DXMESH				m_lpMesh;
 	vector<cGroup*>			m_vecGroup;
+
 public:
 	void Setup();
 	void Update();
@@ -37,9 +36,6 @@ public:
 
 	void Create_Font();
 	void Text_Render();
-
-	void Frame();
-
 
 };
 

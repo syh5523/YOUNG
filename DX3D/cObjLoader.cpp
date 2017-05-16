@@ -409,4 +409,5 @@ LPD3DXMESH cObjLoader::LoadMesh(OUT vector<cMtlTex*>& vecMtlTex, IN char * szFol
 	m_mapMtlTex.clear();
 
 	return pMesh;
+
 }

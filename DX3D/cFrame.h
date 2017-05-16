@@ -9,22 +9,27 @@ public:
 	~cFrame();
 
 private:
+	SYNTHESIZE(LPD3DXMESH, m_pMesh, Mesh)
+	
 	SYNTHESIZE_PASS_BY_REF(vector<ST_PNT_VERTEX>, m_vecVertex, Vertex)
-		SYNTHESIZE_PASS_BY_REF(vector<ST_PNT_VERTEX>, m_vecVertexBefore, VertexBefore)
-		SYNTHESIZE_PASS_BY_REF(D3DXMATRIXA16, m_matLocalTM, LocalTM)
-		SYNTHESIZE_PASS_BY_REF(D3DXMATRIXA16, m_matWorldTM, WorldTM)
-		SYNTHESIZE_PASS_BY_REF(vector<ST_POS_SAMPLE>, m_vecPosTrack, PosTrack)
-		SYNTHESIZE_PASS_BY_REF(vector<ST_ROT_SAMPLE>, m_vecRotTrack, RotTrack)
-		SYNTHESIZE_ADD_REF(cMtlTex*, m_pMtlTex, MtlTex)
-		vector<cFrame*> m_vecChild;
+	SYNTHESIZE_PASS_BY_REF(D3DXMATRIXA16, m_matLocalTM, LocalTM)
+	SYNTHESIZE_PASS_BY_REF(D3DXMATRIXA16, m_matWorldTM, WorldTM)
+	SYNTHESIZE_PASS_BY_REF(vector<ST_POS_SAMPLE>, m_vecPosTrack, PosTrack)
+	SYNTHESIZE_PASS_BY_REF(vector<ST_ROT_SAMPLE>, m_vecRotTrack, RotTrack)
+	SYNTHESIZE_ADD_REF(cMtlTex*, m_pMtlTex, MtlTex)
+	vector<cFrame*> m_vecChild;
 
 	SYNTHESIZE(bool, m_IsMove, IsMove)
-		SYNTHESIZE(int, m_fFrameSpeed, fFrameSpeed)
+	SYNTHESIZE(int, m_fFrameSpeed, fFrameSpeed)
+
+
+	SYNTHESIZE(DWORD, m_Frame, Frame)
+	SYNTHESIZE(DWORD, m_Frame1, Frame1)
 
 public:
+	void Setup();
 	void Update(int nKeyFrame, D3DXMATRIXA16 *pMatParent);
 	void Render();
-	void Render1();
 	void AddChild(cFrame* pChild);
 	void Destroy();
 	void CalcOriginalLocalTM(D3DXMATRIXA16 *pMatParent);

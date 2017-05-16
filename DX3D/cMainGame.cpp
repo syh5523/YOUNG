@@ -14,7 +14,7 @@ cMainGame::cMainGame()
 	: m_pCamera(NULL)
 	, m_pGrid(NULL)
 	, m_pAseCharacter(NULL)
-	, tic(0), tic1(0), frame(0), frame1(0),  curFrame(0), curFrame1(0)
+	,curFrame(0), curFrame1(0)
 	, m_lpMesh(NULL)
 {
 }
@@ -61,21 +61,14 @@ void cMainGame::Setup()
 	cObjLoader loadObj;
 	loadObj.Load(m_vecGroup, "obj", "Map.obj");
 
-	cout << m_lpMesh->GetNumFaces() << endl;
-	cout << m_lpMesh->GetNumVertices() << endl;
-
 	Set_Light();
 	Create_Font();
-	tic = GetTickCount();
-	tic1 = GetTickCount();
 }
 
 void cMainGame::Update()
 {
 	if (m_pCamera) m_pCamera->Update();
 	if (m_pAseCharacter) m_pAseCharacter->Update();
-
-	Frame();
 }
 
 void cMainGame::Render()
@@ -107,13 +100,12 @@ void cMainGame::Render()
 
 	time1 = GetTickCount();
 
-	for (int i = 0; i < 500; ++i)
+	for (int i = 0; i < REPEATCOUNT; ++i)
 	{
 		for each(auto p in m_vecGroup)
 		{
 			p->Render();
 		}
-
 	}
 
 	time2 = GetTickCount();
@@ -121,19 +113,15 @@ void cMainGame::Render()
 
 	time3 = GetTickCount();
 
-	for (int i = 0; i < 500; ++i)
+	for (int i = 0; i < REPEATCOUNT; ++i)
 	{
-		for (int i = 0; i < 6; ++i)
+		for (int i = 0; i < m_vpMtlTex.size(); ++i)
 		{
 			g_pD3DDevice->SetTexture(0, m_vpMtlTex[i]->GetTexture());
 			g_pD3DDevice->SetMaterial(&m_vpMtlTex[i]->GetMaterial());
 
 			m_lpMesh->DrawSubset(i);
 		}
-
-
-		//frame1++;
-		
 	}
 
 	time4 = GetTickCount();
@@ -184,19 +172,7 @@ void cMainGame::Set_Light()
 void cMainGame::Create_Font()
 {
 	{
-		D3DXFONT_DESC fd;
-		ZeroMemory(&fd, sizeof(D3DXFONT_DESC));
-		fd.Height = 50;
-		fd.Width = 25;
-		fd.Weight = FW_MEDIUM;
-		fd.Italic = false;
-		fd.CharSet = DEFAULT_CHARSET;
-		fd.OutputPrecision = OUT_DEFAULT_PRECIS;
-		fd.PitchAndFamily = FF_DONTCARE;
-		AddFontResource("font/umberto.ttf");
-		strcpy_s(fd.FaceName, "umberto");
-
-		D3DXCreateFontIndirect(g_pD3DDevice, &fd, &m_pFont);
+	
 	}
 
 
@@ -229,16 +205,7 @@ void cMainGame::Create_Font()
 void cMainGame::Text_Render()
 {
 	{
-		string str, str1;
-		str = to_string(curFrame);
-		str1 = to_string(curFrame1);
-
-
-		string sText(str +"  "+ str1);
-		RECT rc;
-		SetRect(&rc, 100, 100, 101, 100);
-		m_pFont->DrawTextA(NULL, sText.c_str(), sText.length(), &rc, DT_LEFT | DT_TOP | DT_NOCLIP,
-			D3DCOLOR_XRGB(255, 255, 0));
+		
 	}
 
 
@@ -258,22 +225,6 @@ void cMainGame::Text_Render()
 		g_pD3DDevice->SetTransform(D3DTS_WORLD, &matWorld);
 		m_p3DText->DrawSubset(0);*/
 	}
-}
-void cMainGame::Frame()
-{
-	/*if (tic + 100 < GetTickCount())
-	{
-		curFrame = frame;
-		tic = GetTickCount();
-		frame = 0;
-	}
-	
-	if (tic1 + 100 < GetTickCount())
-	{
-		curFrame1 = frame1;
-		tic1 = GetTickCount();
-		frame1 = 0;
-	}*/
 }
 
 

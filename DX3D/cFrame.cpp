@@ -7,6 +7,7 @@ cFrame::cFrame()
 	, m_fFrameSpeed(2)
 	, m_pVB(NULL)
 	, m_nNumTri(0)
+	, m_Frame(0), m_Frame1(0)
 {
 	D3DXMatrixIdentity(&m_matLocalTM);
 	D3DXMatrixIdentity(&m_matWorldTM);
@@ -17,8 +18,47 @@ cFrame::~cFrame()
 {
 	SAFE_RELEASE(m_pMtlTex);
 	SAFE_RELEASE(m_pVB);
+	SAFE_RELEASE(m_pMesh);
 }
 
+void cFrame::Setup()
+{
+	D3DXCreateMeshFVF(m_vecVertex.size() / 3, m_vecVertex.size(), D3DXMESH_MANAGED, ST_PNT_VERTEX::FVF,
+		g_pD3DDevice, &m_pMesh);
+
+	ST_PNT_VERTEX * pV = NULL;
+	m_pMesh->LockVertexBuffer(0, (LPVOID*)&pV);
+	memcpy(pV, &m_vecVertex[0], m_vecVertex.size() * sizeof(ST_PNT_VERTEX));
+	m_pMesh->UnlockVertexBuffer();
+
+	WORD* pl = NULL;
+	m_pMesh->LockIndexBuffer(0, (LPVOID*)&pl);
+
+	for (int i = 0; i < m_vecVertex.size(); ++i)
+	{
+		pl[i] = i;
+	}
+	m_pMesh->UnlockIndexBuffer();
+
+	DWORD* pA = NULL;
+	m_pMesh->LockAttributeBuffer(0, &pA);
+	for (int i = 0; i < m_vecVertex.size() / 3; ++i)
+	{
+		pA[i] = 0;
+	}
+	m_pMesh->UnlockAttributeBuffer();
+
+	vector<DWORD> vecAdj(m_vecVertex.size());
+	m_pMesh->GenerateAdjacency(0.0f, &vecAdj[0]);
+	m_pMesh->OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_COMPACT | D3DXMESHOPT_VERTEXCACHE,
+		&vecAdj[0], 0, 0, 0);
+
+	for each(auto c in m_vecChild)
+	{
+		c->Setup();
+	}
+
+}
 void cFrame::Update(int nKeyFrame, D3DXMATRIXA16 * pMatParent)
 {
 	D3DXMATRIXA16 matR, matT;
@@ -56,7 +96,7 @@ void cFrame::Update(int nKeyFrame, D3DXMATRIXA16 * pMatParent)
 		c->Update(nKeyFrame, &m_matWorldTM);
 	}
 
-
+	
 }
 
 void cFrame::Render()
@@ -69,29 +109,36 @@ void cFrame::Render()
 		g_pD3DDevice->SetFVF(ST_PNT_VERTEX::FVF);
 
 
-		for (int i = 0; i < 500; ++i)
+		
+		//for (int i = 0; i < REPEATCOUNT; ++i)
+		//{
+		//	/*g_pD3DDevice->SetStreamSource(0, m_pVB, 0, sizeof(ST_PNT_VERTEX));
+		//	g_pD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 0, m_nNumTri);*/
+
+		//	g_pD3DDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST,
+		//		m_vecVertex.size() / 3,
+		//		&m_vecVertex[0],
+		//		sizeof(ST_PNT_VERTEX));
+		//}
+
+
+
+		for (int i = 0; i < REPEATCOUNT; ++i)
 		{
-			g_pD3DDevice->SetStreamSource(0, m_pVB, 0, sizeof(ST_PNT_VERTEX));
-			g_pD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 0, m_nNumTri);
+			m_pMesh->DrawSubset(0);
 		}
 
-		/*for (int i = 0; i < 500; ++i)
-		{
-			g_pD3DDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST,
-				m_vecVertexBefore.size() / 3,
-				&m_vecVertexBefore[0],
-				sizeof(ST_PNT_VERTEX));
-		}*/
-
-
-
-
 	}
+
+	
 
 	for each(auto c in m_vecChild)
 	{
 		c->Render();
 	}
+
+	
+
 }
 
 
