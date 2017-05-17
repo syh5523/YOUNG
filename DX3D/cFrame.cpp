@@ -7,7 +7,7 @@ cFrame::cFrame()
 	, m_fFrameSpeed(2)
 	, m_pVB(NULL)
 	, m_nNumTri(0)
-	, m_Frame(0), m_Frame1(0)
+	, m_Frame(0)
 {
 	D3DXMatrixIdentity(&m_matLocalTM);
 	D3DXMatrixIdentity(&m_matWorldTM);
@@ -21,25 +21,31 @@ cFrame::~cFrame()
 	SAFE_RELEASE(m_pMesh);
 }
 
-void cFrame::Setup()
+void cFrame::Setup(bool IsMeshRender)
 {
+	//비교 렌더하기 위해 똑같은 클래스 2개 선언 후 시간차 비교함 (메쉬렌더는 트루 아닌건 폴스)
+	m_IsMeshRender = true;
+
+	//각각의 오브젝트(프레임 클래스)에 메쉬를 입힘.
 	D3DXCreateMeshFVF(m_vecVertex.size() / 3, m_vecVertex.size(), D3DXMESH_MANAGED, ST_PNT_VERTEX::FVF,
 		g_pD3DDevice, &m_pMesh);
 
+	//버텍스 락
 	ST_PNT_VERTEX * pV = NULL;
 	m_pMesh->LockVertexBuffer(0, (LPVOID*)&pV);
 	memcpy(pV, &m_vecVertex[0], m_vecVertex.size() * sizeof(ST_PNT_VERTEX));
 	m_pMesh->UnlockVertexBuffer();
 
+	//인덱스 락
 	WORD* pl = NULL;
 	m_pMesh->LockIndexBuffer(0, (LPVOID*)&pl);
-
 	for (int i = 0; i < m_vecVertex.size(); ++i)
 	{
 		pl[i] = i;
 	}
 	m_pMesh->UnlockIndexBuffer();
 
+	//어트리뷰트 락 (한개의 오브젝트(프레임 클래스)는 같은 머터리얼을 가지고 있어 서브젝트를 나누지 않음) 
 	DWORD* pA = NULL;
 	m_pMesh->LockAttributeBuffer(0, &pA);
 	for (int i = 0; i < m_vecVertex.size() / 3; ++i)
@@ -48,6 +54,7 @@ void cFrame::Setup()
 	}
 	m_pMesh->UnlockAttributeBuffer();
 
+	//최적화
 	vector<DWORD> vecAdj(m_vecVertex.size());
 	m_pMesh->GenerateAdjacency(0.0f, &vecAdj[0]);
 	m_pMesh->OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_COMPACT | D3DXMESHOPT_VERTEXCACHE,
@@ -55,7 +62,7 @@ void cFrame::Setup()
 
 	for each(auto c in m_vecChild)
 	{
-		c->Setup();
+		c->Setup(m_IsMeshRender);
 	}
 
 }
@@ -96,11 +103,12 @@ void cFrame::Update(int nKeyFrame, D3DXMATRIXA16 * pMatParent)
 		c->Update(nKeyFrame, &m_matWorldTM);
 	}
 
-	
+
 }
 
 void cFrame::Render()
 {
+
 	if (m_pMtlTex)
 	{
 		g_pD3DDevice->SetTransform(D3DTS_WORLD, &m_matWorldTM);
@@ -108,36 +116,39 @@ void cFrame::Render()
 		g_pD3DDevice->SetMaterial(&m_pMtlTex->GetMaterial());
 		g_pD3DDevice->SetFVF(ST_PNT_VERTEX::FVF);
 
-
-		
-		//for (int i = 0; i < REPEATCOUNT; ++i)
-		//{
-		//	/*g_pD3DDevice->SetStreamSource(0, m_pVB, 0, sizeof(ST_PNT_VERTEX));
-		//	g_pD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 0, m_nNumTri);*/
-
-		//	g_pD3DDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST,
-		//		m_vecVertex.size() / 3,
-		//		&m_vecVertex[0],
-		//		sizeof(ST_PNT_VERTEX));
-		//}
-
-
-
-		for (int i = 0; i < REPEATCOUNT; ++i)
+		//셋업시 m_IsMeshRender가 트루일 경우 메시렌더 방식으로 렌더
+		if (m_IsMeshRender)
 		{
-			m_pMesh->DrawSubset(0);
+			for (int i = 0; i < REPEATCOUNT; ++i)
+			{
+				m_pMesh->DrawSubset(0);
+			}
 		}
+		//셋업시 m_IsMeshRender가 false일 경우 기존 방식으로 렌더
+		else
+		{
+			for (int i = 0; i < REPEATCOUNT; ++i)
+			{
+				/*g_pD3DDevice->SetStreamSource(0, m_pVB, 0, sizeof(ST_PNT_VERTEX));
+				g_pD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 0, m_nNumTri);*/
 
+				g_pD3DDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST,
+					m_vecVertex.size() / 3,
+					&m_vecVertex[0],
+					sizeof(ST_PNT_VERTEX));
+			}
+		}
 	}
 
+
 	
+
+
 
 	for each(auto c in m_vecChild)
 	{
 		c->Render();
 	}
-
-	
 
 }
 

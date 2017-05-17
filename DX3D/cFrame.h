@@ -20,14 +20,14 @@ private:
 	vector<cFrame*> m_vecChild;
 
 	SYNTHESIZE(bool, m_IsMove, IsMove)
+	SYNTHESIZE(bool, m_IsMeshRender, IsMeshRender)						
 	SYNTHESIZE(int, m_fFrameSpeed, fFrameSpeed)
 
 
 	SYNTHESIZE(DWORD, m_Frame, Frame)
-	SYNTHESIZE(DWORD, m_Frame1, Frame1)
 
 public:
-	void Setup();
+	void Setup(bool IsMeshRender);
 	void Update(int nKeyFrame, D3DXMATRIXA16 *pMatParent);
 	void Render();
 	void AddChild(cFrame* pChild);

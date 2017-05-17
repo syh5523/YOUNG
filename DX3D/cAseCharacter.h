@@ -14,9 +14,12 @@ private:
 	cFrame*					m_pRunFrame;
 	cFrame*					m_pStandingFrame;
 
+	cFrame*					m_pRunFrameMesh;
+	cFrame*					m_pStandingFrameMesh;
+
 	SYNTHESIZE(DWORD, m_Frame, Frame)
 	SYNTHESIZE(DWORD, m_Frame1, Frame1)
-	LPD3DXFONT				m_pFont;
+	LPD3DXFONT		  m_pFont;
 public:
 	virtual void Setup() override;
 	virtual void Update() override;

@@ -85,7 +85,9 @@ void cMainGame::Render()
 
 	if (m_pGrid) m_pGrid->Render();
 	if (m_pAseCharacter) m_pAseCharacter->Render();
-	Text_Render();
+	
+	
+	/*Text_Render();
 
 	D3DXMATRIXA16 matWorld, matS, matR;
 	D3DXMatrixScaling(&matS, 0.01f, 0.01f, 0.01f);
@@ -125,7 +127,7 @@ void cMainGame::Render()
 	}
 
 	time4 = GetTickCount();
-	curFrame1 = time4 - time3;
+	curFrame1 = time4 - time3;*/
 
 
 

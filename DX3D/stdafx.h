@@ -148,5 +148,5 @@ struct ST_ROT_SAMPLE
 #define EPSILON			(0.001f)
 #define SAMPLE_WIDTH    (0.015625f)
 #define SAMPLE_HEIGHT   (0.03125f)
-#define REPEATCOUNT (1000)
+#define REPEATCOUNT (5000)
 
